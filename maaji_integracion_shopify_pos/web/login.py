@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from .webdriver import BrowserDriver, WebDriverWaitTimeOuted as Wait
 from ..config import Configuration, KeySitesShopifyStores
-from ..utils import function_for_test, wait_changes_file, CURRENT_WORKING_DIR, load_dotenv
+from ..utils import UrlParser, function_for_test, wait_changes_file, CURRENT_WORKING_DIR, load_dotenv
 
 @function_for_test
 def login_shopify_resolve_segurity_tfa(driver: BrowserDriver, /, timeout=30) -> None:
@@ -65,22 +65,11 @@ def is_on_stocky_login(driver: BrowserDriver) -> bool:
     """Comprueba si el navegador está en el sitio de stocky login."""
     return Configuration.get_site("stocky", "login").geturl() == driver.current_url
 
-
-def login_shopify_admin(driver: BrowserDriver) -> None:
-    """Intenta hacer login en Shopify Admin."""
-    if is_on_shopify_admin(driver):
-        return None
-    driver.get(Configuration.sites.shopify_admin)
-    if is_on_shopify_admin(driver):
-        return None
-    driver.get(Configuration.sites.shopify_login)
-
-    if not is_on_shopify_login(driver):
-        msg = f"No se ha podido iniciar sesion en Shopify: '{Configuration.sites.shopify_login}'"
-        raise WebDriverException(msg)
-
+def login_shopify_admin_lookup(driver: BrowserDriver) -> None:
+    """Inicia sesion desde cero, con usuario y contraseña."""
     shopify_email = environ.get("SHOPIFY_EMAIL")
     shopify_password = environ.get("SHOPIFY_PASSWORD")
+
     if shopify_email is None or shopify_password is None:
         msg = "No se han establecido credenciales para iniciar sesion en shopify admin."
         raise WebDriverException(msg)
@@ -111,6 +100,37 @@ def login_shopify_admin(driver: BrowserDriver) -> None:
         login_shopify_resolve_segurity_tfa(driver, 180)
     except EnvironmentError:
         pass
+
+def login_shopify_admin_select(driver: BrowserDriver) -> None:
+    """Inicia sesión con la cuenta guardada en el login."""
+    shopify_email = environ.get("SHOPIFY_EMAIL")
+    selected_account = driver.find_element(By.PARTIAL_LINK_TEXT, shopify_email)
+    selected_account.click()
+
+def login_shopify_admin(driver: BrowserDriver) -> None:
+    """Intenta hacer login en Shopify Admin."""
+    if is_on_shopify_admin(driver):
+        return None
+    driver.get(Configuration.sites.shopify_admin)
+    if is_on_shopify_admin(driver):
+        return None
+    url_login = Configuration.get_site("shopify_login", "store_login")
+    driver.get(url_login.geturl())
+
+    if not is_on_shopify_login(driver):
+        msg = f"No se ha podido iniciar sesion en Shopify: '{Configuration.sites.shopify_login}'"
+        raise WebDriverException(msg)
+
+    url_lookup = Configuration.get_site("shopify_login", "lookup_rid")
+    url_select = Configuration.get_site("shopify_login", "select_rid")
+
+    current_url = UrlParser(driver.current_url)
+    if current_url.path == url_select.path:
+        login_shopify_admin_select(driver)
+    elif current_url.path == url_lookup.path:
+        login_shopify_admin_lookup(driver)
+    else:
+        raise WebDriverException("Modelo de login en Shopify no soportado.")
 
 
 def login_stocky(

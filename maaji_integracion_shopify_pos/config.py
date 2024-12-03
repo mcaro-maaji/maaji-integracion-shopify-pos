@@ -115,7 +115,7 @@ class Sites(DataClass):
         prod: str = "https://artmodeprod.operations.dynamics.com"
         uat: str = "https://artmodeuat.sandbox.operations.dynamics.com"
 
-    shopify_login: str = "https://accounts.shopify.com/store-login"
+    shopify_login: str = "https://accounts.shopify.com"
     shopify_admin: str = "https://admin.shopify.com"
     shopify_store: ShopifyStore = field(default_factory=ShopifyStore)
     stocky: str = "https://stocky.shopifyapps.com"
@@ -158,6 +158,13 @@ class Sites(DataClass):
 @dataclass
 class SiteActions(DataClass):
     """Enrutamiento de los sitios para ubicar la integración en acciones."""
+
+    @dataclass
+    class ShopifyLogin(DataClass):
+        """Rutas para realizar el login según el tipo de situación, primera vez ó seleccionar."""
+        store_login: str = "/store-login"
+        select_rid: str = "/select?rid={id}"
+        lookup_rid: str = "/lookup?rid={id}&verify={token_verify}"
 
     @dataclass
     class ShopifyStoreAdmin(DataClass):
@@ -209,6 +216,7 @@ class SiteActions(DataClass):
         service_products: str = _api_service + "/getproductoCEGID"
         service_bills: str =_api_service + "/getfacturas"
 
+    shopify_login: ShopifyLogin = field(default_factory=ShopifyLogin)
     shopify_admin: ShopifyStoreAdmin = field(default_factory=ShopifyStoreAdmin)
     stocky: Stocky = field(default_factory=Stocky)
     stocky_api: StockyAPI = field(default_factory=StockyAPI)

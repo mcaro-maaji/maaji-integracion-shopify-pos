@@ -147,7 +147,7 @@ class WebPurchaseOrderFile:
             return None # TODO: Log event
 
         [key_store, location] = self.validate_location()
-        login_stocky(self.driver, key_store)
+        login_stocky(self.driver, key_store, shopify=True)
 
         url = Configuration.get_site("stocky", "create_purchase_order")
         self.driver.get(url.geturl())

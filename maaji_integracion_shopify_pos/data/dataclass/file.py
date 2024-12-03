@@ -7,6 +7,7 @@ from pathlib import Path
 from copy import deepcopy
 from io import TextIOWrapper
 from datetime import datetime
+from shutil import move as move_file
 from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin as DataClass
 from maaji_integracion_shopify_pos.utils import deep_del_key
@@ -212,3 +213,12 @@ class DataClassFile(DataClass):
             dtcls_fieldnames.remove("__metadata__")
         new_dict = {key: __dataclass.__dict__[key] for key in fieldnames if key in dtcls_fieldnames}
         self.__dict__.update(new_dict)
+
+    @final
+    def move_file(self, status: EnumMetaDataFileStatus) -> None:
+        """Mueve el archivo dependiendo del estado del mismo."""
+        if self.getstatus() != status:
+            current_path = self.getpath()
+            self.setstatus(status)
+            new_path = self.getpath()
+            move_file(current_path, new_path)

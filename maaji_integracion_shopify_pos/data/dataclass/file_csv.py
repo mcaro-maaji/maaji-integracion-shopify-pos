@@ -74,8 +74,9 @@ class FileCSVContext(FileContext):
 class DataClassFileCsv(DataClassFile):
     """Estructura base para la manipulación de archivos CSV con clases."""
 
-    __csv_row_select = 0
-    __csv_rows = []
+    def __post_init__(self):
+        self.__csv_row_select = 0
+        self.__csv_rows = []
 
     def getcontext(self) -> FileCSVContext:
         return super().getcontext()

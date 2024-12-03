@@ -12,7 +12,7 @@ from ..utils import ENVIRONMENT
 
 def login_service(dynamics_env: KeySitesDynamics | None = None, /) -> DataApiAuthentication:
     """Realiza la peticion para hacer login en microsoft."""
-    dynamics_env = dynamics_env or "prod" if ENVIRONMENT == "prod" else "uat"
+    dynamics_env = dynamics_env or ("prod" if ENVIRONMENT == "prod" else "uat")
 
     ### Implementación de la caché, memoizacion de la autenticación.
     if not hasattr(login_service, "__cache__"):
@@ -35,7 +35,6 @@ def login_service(dynamics_env: KeySitesDynamics | None = None, /) -> DataApiAut
     url = Configuration.get_site("dynamics_login", "login", aad_tenant=aad_tenant)
     timeout = Configuration.api_service.dynamics_timeout
     response = api.post(url.geturl(), data=credentials_dict, timeout=timeout)
-
     if response.status_code != 200:
         raise RequestException("No se pudo hacer login en el servicio Dynamics 365.")
 
@@ -51,7 +50,7 @@ def request_service(service: DynamicsService,
                     dynamics_env: KeySitesDynamics | None = None,
                     /) -> DataApiResService:
     """Lanzar el servicio de dynamics 365."""
-    dynamics_env = dynamics_env or "prod" if ENVIRONMENT == "prod" else "uat"
+    dynamics_env = dynamics_env or ("prod" if ENVIRONMENT == "prod" else "uat")
     url = Configuration.get_site("dynamics:" + dynamics_env, "service_" + service)
 
     auth = login_service(dynamics_env)
@@ -61,8 +60,9 @@ def request_service(service: DynamicsService,
     timeout = Configuration.api_service.dynamics_timeout
 
     response = api.post(url.geturl(), headers=headers, json=body, timeout=timeout)
-    if response.status_code != 200:
-        msg = f"No se pudo obtener la data en el servicio Dynamics 365: Status code, {response.status_code}"
+    status_code = response.status_code
+    if status_code != 200:
+        msg = f"No se pudo obtener la data en el servicio Dynamics 365: Status code, {status_code}"
         raise RequestException(msg)
     return DataApiResService.from_dict(response.json())
 
