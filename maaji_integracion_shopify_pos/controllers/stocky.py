@@ -8,7 +8,8 @@ from ..api.stocky import ApiStockyFile
 from ..utils import WORKING_DIR
 
 DataStocky = DataStockyFile()
-DataStocky.setpath(WORKING_DIR / "stocky.json")
+DataStocky.setname("stocky.json")
+DataStocky.setpath(WORKING_DIR)
 DataStockyContext = FileJSONContext(onsave=FileJSONContext.OnSave(indent=4))
 DataStocky.setcontext(DataStockyContext)
 DataStocky.load_file()
@@ -17,7 +18,8 @@ WebStocky = WebStockyFile(get_webdriver(), DataStocky)
 WebStocky.update_from_last_updated_at()
 
 DataSuppliers = DataSuppliersFile()
-DataSuppliers.setpath(WORKING_DIR / "suppliers.json")
+DataSuppliers.setname("suppliers.json")
+DataSuppliers.setpath(WORKING_DIR)
 DataSuppliersContext = FileJSONContext(onsave=FileJSONContext.OnSave(indent=4))
 DataSuppliers.setcontext(DataSuppliersContext)
 DataSuppliers.load_file()

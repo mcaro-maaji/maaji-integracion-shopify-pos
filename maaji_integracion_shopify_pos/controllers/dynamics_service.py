@@ -25,10 +25,11 @@ def validate_bill_store(bill: Dynamics.DataApiServiceBills, store_key: KeySitesS
     """Realiza la validación de la tienda y homologa el campo con la localización el shopify."""
     WebLocations.update_from_last_updated_at()
 
-    fieldmapping_stores = FieldMapping.stores.find_by(lambda fd: bill.tienda in fd.codes)
+    fieldmapping_stores = FieldMapping.stores.find(lambda fd: bill.tienda in fd.codes \
+                                                   or bill.tienda in fd.names)
     store_names = None if not fieldmapping_stores.shopify else fieldmapping_stores.shopify[0].names
 
-    err_msg = "No se homologó el campo Tienda de la factura D365 '{}' con Shopify localización."
+    err_msg = "No se encontro el campo Tienda de la factura D365 '{}' en Shopify localización."
     err = ValueError(err_msg.format(bill.numero_factura))
 
     if store_names:
@@ -53,8 +54,8 @@ def one_bill_line_to_purchase_order(bill: Dynamics.DataApiServiceBills,
     """
     Convierte un resultado de la factura del servicio dynamics 365 a una orden de compra en stocky.
     """
-    # tienda = validate_bill_store(bill, store_key)
-    tienda = 72046280749 # bill.tienda = CE600 <- ID localizacion Shopify = MAAJI MAYORCA
+    tienda = validate_bill_store(bill, store_key)
+    # tienda = 72046280749 # bill.tienda <- ID localizacion Shopify = MAAJI MAYORCA Test
     proveedor = validate_bill_supplier(bill)
     fecha_factura = datetime.strptime(bill.fecha_factura, "%d/%m/%Y").date()
 
@@ -63,23 +64,23 @@ def one_bill_line_to_purchase_order(bill: Dynamics.DataApiServiceBills,
         invoice_date=fecha_factura,
         currency=bill.moneda,
         shopify_store_key_name=store_key,
-        shopify_receive_location_id=tienda,
+        shopify_receive_location_id=tienda.id,
         supplier_name=proveedor
     )
 
-def split_bills(bills: list[Dynamics.DataApiServiceBills], /):
+def splitlines_bills(bills: list[Dynamics.DataApiServiceBills], /):
     """Ordena cada linea de las facturas de D365 por numero de factura y separa por cada factura."""
     bills_sorted = sorted(bills, key=lambda bill: bill.numero_factura)
-    bills_splited: list[list[Dynamics.DataApiServiceBills]] = []
-    bills_temp: list[Dynamics.DataApiServiceBills] = []
+    bills_lines_splited: list[list[Dynamics.DataApiServiceBills]] = []
+    bill_temp: list[Dynamics.DataApiServiceBills] = []
 
     for bill in bills_sorted:
-        if bills_temp and bills_temp[0].numero_factura != bill.numero_factura:
-            bills_splited.append(bills_temp)
-            bills_temp = []
-        bills_temp.append(bill)
-    bills_splited.append(bills_temp)
-    return bills_splited
+        if bill_temp and bill_temp[0].numero_factura != bill.numero_factura:
+            bills_lines_splited.append(bill_temp)
+            bill_temp = []
+        bill_temp.append(bill)
+    bills_lines_splited.append(bill_temp)
+    return bills_lines_splited
 
 def bill_lines_to_purchase_items(bills: list[Dynamics.DataApiServiceBills], /):
     """
@@ -111,9 +112,12 @@ def bills_to_purchase_orders(bills: list[Dynamics.DataApiServiceBills],
     Convierte todas las facturas del servicio dynamics 365 a varias ordenes de compra
     en stocky.
     """
-    bills_splited = split_bills(bills)
+    bills_lines_splited = splitlines_bills(bills)
     purchase_orders: list[DataPurchaseOrdersFile] = []
-    for bill in bills_splited:
-        purchase_order = bill_to_purchase_order(bill, store_key)
-        purchase_orders.append(purchase_order)
+    for bill in bills_lines_splited:
+        try:
+            purchase_order = bill_to_purchase_order(bill, store_key)
+            purchase_orders.append(purchase_order)
+        except ValueError: # No se homologa el campo Tienda con la localizacion en shopify
+            pass
     return purchase_orders

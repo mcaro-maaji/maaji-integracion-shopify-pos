@@ -9,10 +9,12 @@ Por lo general para un dataclass se utiliza la palabra clave "__metadata__" como
 """
 
 from enum import Enum
+from pathlib import Path
 from typing import Optional
 from datetime import datetime
 from dataclasses import dataclass, field
-from dataclasses_json import DataClassJsonMixin as DataClass
+from dataclasses_json import DataClassJsonMixin as DataClass, config
+from marshmallow import fields
 
 class EnumMetaDataFileStatus(Enum):
     """
@@ -37,10 +39,10 @@ class MetaDataClassFileStatus(DataClass):
     :completed: Es la ruta donde debe moverse el archivo, con una ejecición exitosa de un proceso.
     :onreject: Es la ruta donde debe moverse el archivo, con una ejeción falllida de un proceso.
     """
-    origin: Optional[str] = None
-    onhold: Optional[str] = None
-    completed: Optional[str] = None
-    onreject: Optional[str] = None
+    origin: Optional[Path] = field(default=None, metadata=config(mm_field=fields.String()))
+    onhold: Optional[Path] = field(default=None, metadata=config(mm_field=fields.String()))
+    completed: Optional[Path] = field(default=None, metadata=config(mm_field=fields.String()))
+    onreject: Optional[Path] = field(default=None, metadata=config(mm_field=fields.String()))
 
 @dataclass
 class MetaDataClassFile(DataClass):
@@ -50,6 +52,7 @@ class MetaDataClassFile(DataClass):
     Campos
     ------
     :visible_on_file: Hacer visible o no los metadatos en el archivo, por ejemplo, en formato JSON.
+    :name: Nombre del archivo.
     :path: Ver `MetaDataClassFileStatus`.
     :path_status: Ver `EnumMetaDataFileStatus`.
     :created_at: Timestamp en que se creó el dataclass.
@@ -57,6 +60,7 @@ class MetaDataClassFile(DataClass):
     :last_accessed_at: Timestamp del ultimo acceso a el dataclass.
     """
     visible_on_file: bool = False
+    name: Optional[str] = None
     path: MetaDataClassFileStatus = field(default_factory=MetaDataClassFileStatus)
     path_status: EnumMetaDataFileStatus = EnumMetaDataFileStatus.ORIGIN # Por defecto
     created_at: Optional[datetime] = None

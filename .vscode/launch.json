@@ -22,7 +22,8 @@
       "request": "launch",
       "module": "maaji_integracion_shopify_pos",
       "args": [
-        "run-purchase-orders",
+        "run",
+        "purchase-orders",
         "--date=2/8/2024",
         "--env=uat"
       ],

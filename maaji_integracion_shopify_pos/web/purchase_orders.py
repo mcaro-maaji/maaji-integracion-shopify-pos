@@ -5,7 +5,7 @@ from datetime import date, datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from .webdriver import BrowserDriver, WebDriverWaitTimeOuted as Wait
 from .login import login_stocky
 from .stocky import WebStockyFile
@@ -202,7 +202,9 @@ class WebPurchaseOrderFile:
 
         file_until = EC.visibility_of_element_located((By.ID, "purchase_item_import_file_url"))
         input_file = Wait(self.driver).until(file_until)
-        input_file.send_keys(self.data.getpath())
+        path_file = self.data.getpath() / self.data.getname()
+        path_file = str(path_file.absolute())
+        input_file.send_keys(path_file)
 
         timeout = Configuration.purchase_orders.timeout_add_products or 300 # 5 minutos
         input_summit_until = EC.element_to_be_clickable((By.NAME, "commit"))
@@ -349,6 +351,6 @@ class WebPurchaseOrderFile:
             self.add_products()
             self.fill_form()
             self.mark_ordered()
-        except Exception as err:
+        except WebDriverException as err:
             if not skip_err:
                 raise err

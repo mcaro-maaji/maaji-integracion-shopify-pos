@@ -1,6 +1,7 @@
 """TODO: DOCS"""
 
 from datetime import datetime
+from selenium.common.exceptions import WebDriverException
 from .dynamics_service import bills_to_purchase_orders
 from .locations import WebLocations
 from .stocky import WebStocky, ApiStockySuppliers
@@ -15,12 +16,12 @@ from ..utils import WORKING_DIR
 PURCHASE_DIR = WORKING_DIR / "pedido_de_compra"
 
 default_context = FilePurchaseOrderContext()
-default_fieldnames = ['id',	'number', 'sequential_id', 'invoice_number', 'supplier_name',
-                      'supplier_id', 'currency', 'shopify_receive_location_id', 'invoice_date',
+default_fieldnames = ['id',	'number', 'invoice_number', 'supplier_name', 'supplier_id',
+                      'currency', 'shopify_receive_location_id', 'invoice_date',
                       'shopify_store_key_name']
-default_items_fieldnames = ['quantity', 'cost_price', 'bar_code']
+default_items_fieldnames = ['bar_code', 'quantity', 'cost_price']
 default_items_fieldnames.extend([None] * len(default_fieldnames))
-default_fieldnames = [*([None] * 3), *default_fieldnames]
+default_fieldnames = [None, None, None, *default_fieldnames]
 
 def create_from_path(path: str, /):
     """Crea una orden de compra desde una ruta."""
@@ -67,15 +68,18 @@ def create_from_service(payload: DataApiPayload,
         data_purchase_order.setcontext(context)
         date_str = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         name = f'Compra {data_purchase_order.invoice_number} {date_str}.csv'
-        data_purchase_order.setpath(PURCHASE_DIR / "Entrada" / name, FileStatus.ON_HOLD)
-        data_purchase_order.setpath(PURCHASE_DIR / "Almacenamiento" / name, FileStatus.COMPLETED)
-        data_purchase_order.setpath(PURCHASE_DIR / "Rechazado" / name, FileStatus.ON_REJECT)
-        data_purchase_order.setstatus(FileStatus.ON_HOLD)
+        data_purchase_order.setname(name)
+        data_purchase_order.setpath(PURCHASE_DIR / "Entrada", FileStatus.ON_HOLD)
+        data_purchase_order.setpath(PURCHASE_DIR / "Almacenamiento", FileStatus.COMPLETED)
+        data_purchase_order.setpath(PURCHASE_DIR / "Rechazado", FileStatus.ON_REJECT)
+        status = FileStatus.ON_HOLD
+        data_purchase_order.setstatus(status)
         data_purchase_order.save_file()
         try:
             web_purchase_order.create(skip_err=False)
-            data_purchase_order.flush_row()
-            data_purchase_order.save_file()
-            data_purchase_order.move_file(FileStatus.COMPLETED)
-        except:
-            data_purchase_order.move_file(FileStatus.ON_REJECT)
+            status = FileStatus.COMPLETED
+        except WebDriverException:
+            status = FileStatus.ON_REJECT
+        data_purchase_order.flush_row()
+        data_purchase_order.save_file()
+        data_purchase_order.move_file(status)

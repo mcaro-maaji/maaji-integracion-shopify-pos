@@ -65,11 +65,18 @@ class DataClassFile(DataClass):
         return data_dict
 
     @final
-    def getpath(self) -> str | None:
-        """Obtener la ruta del archivo dependiendo del estado del archivo seleccionado."""
+    def getpath(self) -> Path | None:
+        """
+        Obtener la ruta del directorio del archivo dependiendo del estado del archivo seleccionado.
+        """
         key = self.__metadata__.path_status.value
         path = getattr(self.__metadata__.path, key)
         return path
+
+    @final
+    def getname(self) -> str | None:
+        """Obtener el nombre del archivo."""
+        return self.__metadata__.name
 
     @final
     def getstatus(self) -> EnumMetaDataFileStatus:
@@ -85,10 +92,15 @@ class DataClassFile(DataClass):
         self.__metadata__.path_status = status
 
     @final
+    def setname(self, name: str, /) -> None:
+        """Cambiar el nombre del archivo."""
+        self.__metadata__.name = name
+
+    @final
     def setpath(self, path: str | Path, status=EnumMetaDataFileStatus.ORIGIN, /) -> None:
         """Cambia una ruta del archivo dependiendo del estado."""
-        if isinstance(path, Path):
-            path = path.absolute().as_posix()
+        path = Path(path)
+        path = path.absolute()
         setattr(self.__metadata__.path, status.value, path)
 
     __context = FileContext()
@@ -139,10 +151,11 @@ class DataClassFile(DataClass):
         if context is None:
             context = self.getcontext()
         path = self.getpath()
-        if not path:
+        name = self.getname()
+        if not path or not name:
             return None
         try:
-            with open(path, encoding=encoding) as file:
+            with open(path / name, encoding=encoding) as file:
                 status_err = self.onload_file(file, context)
                 if not status_err:
                     self.metadata_update()
@@ -186,11 +199,13 @@ class DataClassFile(DataClass):
         if context is None:
             context = self.getcontext()
         path = self.getpath()
-        if not path:
+        name = self.getname()
+        if not path or not name:
             return None
+        path.mkdir(mode=511, parents=True, exist_ok=True)
         copy_old_metadata = self.metadata_update()
         try:
-            with open(path, "w", encoding=encoding) as file:
+            with open(path / name, "w", encoding=encoding) as file:
                 self.__metadata__.updated_at = datetime.now()
                 status_err = self.onsave_file(file, context)
                 if status_err:
@@ -217,8 +232,17 @@ class DataClassFile(DataClass):
     @final
     def move_file(self, status: EnumMetaDataFileStatus) -> None:
         """Mueve el archivo dependiendo del estado del mismo."""
-        if self.getstatus() != status:
-            current_path = self.getpath()
-            self.setstatus(status)
-            new_path = self.getpath()
-            move_file(current_path, new_path)
+        name = self.getname()
+        if self.getstatus() == status:
+            return None
+        current_path = self.getpath()
+        self.setstatus(status)
+        new_path = self.getpath()
+
+        if current_path is None or new_path is None:
+            raise TypeError("No se puede mover el archivo: La ruta fuente o destino es nulo.")
+
+        current_path.mkdir(mode=511, parents=True, exist_ok=True)
+        new_path.mkdir(mode=511, parents=True, exist_ok=True)
+        move_file(current_path / name, new_path / name)
+        return None

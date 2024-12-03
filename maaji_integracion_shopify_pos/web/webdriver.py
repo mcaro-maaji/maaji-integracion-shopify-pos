@@ -17,8 +17,8 @@ from webdriver_manager.firefox import GeckoDriverManager
 from ..config import Configuration
 from ..utils import ENVIRONMENT, WORKING_DIR
 
-BrowserAlias = Literal["chrome", "edge", "firefox"]
-BrowserDriver =  Chrome        | Edge        | Firefox
+BrowserAlias   = Literal["chrome", "edge", "firefox"]
+BrowserDriver  = Chrome        | Edge        | Firefox
 BrowserService = ChromeService | EdgeService | FirefoxService
 BrowserOptions = ChromeOptions | EdgeOptions | FirefoxOptions
 

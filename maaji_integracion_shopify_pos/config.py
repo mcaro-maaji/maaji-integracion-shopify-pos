@@ -329,7 +329,8 @@ class ConfigurationFile(DataClassFileJson):
         return url.format(**kwargs)
 
 Configuration = ConfigurationFile()
-Configuration.setpath(WORKING_DIR / "configuration.json")
+Configuration.setpath(WORKING_DIR)
+Configuration.setname("configuration.json")
 ConfigurationContext = FileJSONContext(onsave=FileJSONContext.OnSave(indent=4))
 Configuration.setcontext(ConfigurationContext)
 Configuration.load_file()

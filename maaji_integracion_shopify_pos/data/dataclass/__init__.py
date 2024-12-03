@@ -10,6 +10,7 @@ __all__ = [
     "DataClassFileCsv", "EnumDataClassFileCsvRows", "_PredicatePartialRows", "FileCSVContext"
 ]
 
+from pathlib import Path, WindowsPath, PosixPath
 from typing import TypeVar
 from datetime import datetime, date
 from dataclasses_json import (DataClassJsonMixin as DataClass,
@@ -23,7 +24,7 @@ from .file_csv import (DataClassFileCsv, EnumDataClassFileCsvRows,
 T = TypeVar("T")
 
 def optional_decoder(type_data: type[T]) -> type[T] | None:
-    """Crea un decodificador opcional, convierte los valores vacios en opcionales "None"."""
+    """Crea un decodificador opcional, convierte los valores string vacios en opcionales "None"."""
     def decoder(*args, **kwargs) -> T:
         if not all(args):
             return None
@@ -34,5 +35,13 @@ DataClassGlobalConfig.encoders[datetime] = datetime.isoformat
 DataClassGlobalConfig.decoders[datetime] = optional_decoder(datetime.fromisoformat)
 DataClassGlobalConfig.encoders[date] = date.isoformat
 DataClassGlobalConfig.decoders[date] = optional_decoder(date.fromisoformat)
+
 DataClassGlobalConfig.decoders[float] = optional_decoder(float)
 DataClassGlobalConfig.decoders[int] = optional_decoder(int)
+
+DataClassGlobalConfig.encoders[Path] = str
+DataClassGlobalConfig.decoders[Path] = optional_decoder(Path)
+DataClassGlobalConfig.encoders[WindowsPath] = str
+DataClassGlobalConfig.decoders[WindowsPath] = optional_decoder(WindowsPath)
+DataClassGlobalConfig.encoders[PosixPath] = str
+DataClassGlobalConfig.decoders[PosixPath] = optional_decoder(PosixPath)
