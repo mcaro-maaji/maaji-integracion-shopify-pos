@@ -16,7 +16,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'maaji-integracion-shopify-pos = maaji_integracion_shopify_pos:cli',
-        ],
+            'maaji-integracion-shopify-pos = maaji_integracion_shopify_pos:main',
+        ]
     },
 )
