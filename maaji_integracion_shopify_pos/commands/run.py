@@ -14,7 +14,6 @@ def run_purchase_orders(store: KeySitesShopifyStores, env, date, days):
     """Comando para ejecutar el servicio de crear ordenes de compra mediante D365 y Stocky"""
     date_start = datetime.strptime(date, "%d/%m/%Y")
     date_end = date_start + timedelta(days, seconds=-1)
-    print(date_start.isoformat(), date_end.isoformat())
     payload = purchase_order.DataApiPayload("AM", date_start, date_end)
     purchase_order.create_from_service(payload, store, env)
 

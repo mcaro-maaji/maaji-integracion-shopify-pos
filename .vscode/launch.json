@@ -1,38 +1,38 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Python Debugger: Proyect Main",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "maaji_integracion_shopify_pos",
-      // "program": "${workspaceFolder}\\src\\main.py",
-      "console": "integratedTerminal",
-      "envFile": "${workspaceFolder}/.env",
-      "env": {
-        "WORKING_DIR_MAAJI_INTEGRACION_SHOPIFY_POS": "${workspaceFolder}\\data\\"
-      }
-    },
-    {
-      "name": "Python Debugger: CLI",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "maaji_integracion_shopify_pos",
-      "args": [
-        "run",
-        "purchase-orders",
-        "--date=2/8/2024",
-        "--env=uat"
-      ],
-      // "program": "${workspaceFolder}\\src\\main.py",
-      "console": "integratedTerminal",
-      "envFile": "${workspaceFolder}/.env",
-      "env": {
-        "WORKING_DIR_MAAJI_INTEGRACION_SHOPIFY_POS": "${workspaceFolder}\\data\\"
-      }
-    }
-  ]
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Python Debugger: Proyect Main",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "maaji_integracion_shopify_pos",
+			// "program": "${workspaceFolder}\\src\\main.py",
+			"console": "integratedTerminal",
+			"envFile": "${workspaceFolder}/.env",
+			"env": {
+				"WORKING_DIR_MAAJI_INTEGRACION_SHOPIFY_POS": "${workspaceFolder}\\data\\"
+			}
+		},
+		{
+			"name": "Python Debugger: CLI",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "maaji_integracion_shopify_pos",
+			"args": [
+				"run",
+				"purchase-orders",
+				"--date=2/8/2024",
+				"--env=uat"
+			],
+			// "program": "${workspaceFolder}\\src\\main.py",
+			"console": "integratedTerminal",
+			"envFile": "${workspaceFolder}/.env",
+			"env": {
+				"WORKING_DIR_MAAJI_INTEGRACION_SHOPIFY_POS": "${workspaceFolder}\\data\\"
+			}
+		}
+	]
 }
