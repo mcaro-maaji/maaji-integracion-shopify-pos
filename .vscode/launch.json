@@ -24,7 +24,7 @@
 			"args": [
 				"run",
 				"purchase-orders",
-				"--date=2/8/2024",
+				"--date=3/8/2024",
 				"--env=uat"
 			],
 			// "program": "${workspaceFolder}\\src\\main.py",

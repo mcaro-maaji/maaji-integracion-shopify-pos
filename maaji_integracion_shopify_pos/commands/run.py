@@ -12,8 +12,10 @@ from ..config import KeySitesShopifyStores
 @click.option("--days", default=1, help="Cantidad de días posteriores a la fecha --date.")
 def run_purchase_orders(store: KeySitesShopifyStores, env, date, days):
     """Comando para ejecutar el servicio de crear ordenes de compra mediante D365 y Stocky"""
-    date_start = datetime.strptime(date, "%d/%m/%Y")
-    date_end = date_start + timedelta(days, seconds=-1)
+    if not date:
+        date = datetime.now().date().strftime("%d/%m/%Y")
+    date_end = datetime.strptime(date, "%d/%m/%Y")
+    date_start = date_end - timedelta(days)
     payload = purchase_order.DataApiPayload("AM", date_start, date_end)
     purchase_order.create_from_service(payload, store, env)
 
