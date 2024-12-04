@@ -215,6 +215,7 @@ class SiteActions(DataClass):
         service_prices: str = _api_service + "/getpreciosCEGID"
         service_products: str = _api_service + "/getproductoCEGID"
         service_bills: str =_api_service + "/getfacturas"
+        service_bills_shopify: str =_api_service + "/getfacturashopify"
 
     shopify_login: ShopifyLogin = field(default_factory=ShopifyLogin)
     shopify_admin: ShopifyStoreAdmin = field(default_factory=ShopifyStoreAdmin)

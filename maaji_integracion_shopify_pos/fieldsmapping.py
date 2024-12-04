@@ -42,7 +42,20 @@ class Stores(DataClass):
     )
     dynamics: tuple[Fields, ...] = (
         Fields(id=3, names=["MAAJI MAYORCA OULET", "MAAJI MAYORCA CENTRO COMERCIAL"]),
-        Fields(id=4, names=["MAAJI MONTERIA"])
+        Fields(id=4, names=["MAAJI MONTERIA"]),
+        Fields(id=6, names=["MAS S.A.S. BIC"]),
+        Fields(id=10, names=["MAAJI EL TESORO PARQUE COMERCIAL"]),
+        Fields(id=10, names=["MAAJI EL RETIRO SHOPPING CENTER"]),
+        Fields(id=10, names=["MAAJI CARTAGENA"]),
+        Fields(id=10, names=["MAAJI BARRANQUILLA"]),
+        Fields(id=10, names=["MAAJI CALI"]),
+        Fields(id=10, names=["MAAJI CARTAGENA BOCAGRANDE"]),
+        Fields(id=10, names=["MAAJI SANTAFE"]),
+        Fields(id=10, names=["MAAJI BUCARAMANGA"]),
+        Fields(id=10, names=["MAAJI UNICENTRO BOGOTA"]),
+        Fields(id=10, names=["MAAJI SERREZUELA CARTAGENA"]),
+        Fields(id=10, names=["MAAJI BUENAVISTA BARRANQUILLA"]),
+        Fields(id=10, names=["CASA MAAJI"])
     )
 
     cegid_y2: tuple[Fields, ...] = (

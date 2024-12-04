@@ -53,11 +53,10 @@ def create_from_service(payload: DataApiPayload,
                         dynamics_env: KeySitesDynamics,
                         /):
     """Crear ordenes de compra en stocky mediante el servicio de D365."""
-    bills = get_service("bills", payload, dynamics_env)
-    data_purchase_orders = bills_to_purchase_orders(bills, store_key)
-
-    if not data_purchase_orders:
+    bills = get_service("bills_shopify", payload, dynamics_env)
+    if not bills:
         return None
+    data_purchase_orders = bills_to_purchase_orders(bills, store_key)
 
     context = FilePurchaseOrderContext()
     context.onload.fieldnames = default_fieldnames

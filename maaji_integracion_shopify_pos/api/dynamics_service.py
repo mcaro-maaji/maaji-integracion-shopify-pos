@@ -50,7 +50,7 @@ def login_service(dynamics_env: KeySitesDynamics | None = None, /) -> DataApiAut
     setattr(login_service, "__cache__", __cache__)
     return authentication
 
-DynamicsService = Literal["bills", "products", "prices"]
+DynamicsService = Literal["bills", "bills_shopify", "products", "prices"]
 
 def request_service(service: DynamicsService,
                     payload: DataApiPayload,
@@ -75,7 +75,7 @@ def request_service(service: DynamicsService,
 
 
 @overload
-def get_service(service: Literal["bills"],
+def get_service(service: Literal["bills"] | Literal["bills_shopify"],
                  payload: DataApiPayload,
                  dynamics_env: KeySitesDynamics | None = None,
                  /) -> list[DataApiServiceBills]: pass
@@ -96,7 +96,7 @@ def get_service(service: DynamicsService,
     """Lanza el servicio de dynamics y devuelve como resultado la data del servicio."""
     data_response = request_service(service, payload, dynamics_env)
     data_class = None
-    if service == "bills":
+    if service in ["bills", "bills_shopify"]:
         data_class = DataApiServiceBills
     elif service == "products":
         data_class = DataApiServiceProducts

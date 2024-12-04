@@ -30,8 +30,8 @@ def validate_bill_store(bill: Dynamics.DataApiServiceBills, store_key: KeySitesS
                                                    or bill.tienda in fd.names)
     store_names = None if not fieldmapping_stores.shopify else fieldmapping_stores.shopify[0].names
 
-    err_msg = "No se encontro el campo Tienda de la factura D365 '{}' en Shopify localización."
-    err = ValueError(err_msg.format(bill.numero_factura))
+    err_msg = "No se encontro el campo Tienda de la factura D365 '{}' en Shopify localización: '{}'"
+    err = ValueError(err_msg.format(bill.numero_factura, bill.tienda))
 
     if store_names:
         locations: list[DataLocation] = getattr(web_locations.data, store_key)

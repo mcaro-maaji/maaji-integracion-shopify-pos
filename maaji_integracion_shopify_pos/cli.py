@@ -8,6 +8,3 @@ def cli():
     """Grupo principal para el cli."""
 
 cli.add_command(run)
-
-if __name__ == "__main__":
-    cli()
