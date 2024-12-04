@@ -119,7 +119,6 @@ def bills_to_purchase_orders(bills: list[Dynamics.DataApiServiceBills],
         try:
             purchase_order = bill_to_purchase_order(bill, store_key)
             purchase_orders.append(purchase_order)
-        except ValueError as err: # No se homologa el campo Tienda con la localizacion en shopify
-            print("Error:", err)
+        except ValueError: # No se homologa el campo Tienda con la localizacion en shopify
             pass
     return purchase_orders

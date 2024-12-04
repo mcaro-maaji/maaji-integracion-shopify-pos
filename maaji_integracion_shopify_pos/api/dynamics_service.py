@@ -1,6 +1,7 @@
 """TODO: DOCS"""
 
 from typing import Literal, overload
+from os import environ
 from datetime import datetime
 from requests import api, RequestException
 from ..data.dynamics_service import (
@@ -27,6 +28,12 @@ def login_service(dynamics_env: KeySitesDynamics | None = None, /) -> DataApiAut
 
     resource = Configuration.get_site("dynamics:" + dynamics_env)
     credentials = DataApiCredentials(resource=resource.geturl())
+
+    credentials.grant_type = environ.get("DYNAMICS_SERVICE_AUTH_GRANTYPE")
+    credentials.aad_tenant = environ.get("DYNAMICS_SERVICE_AAD_TENANT")
+    credentials.client_id = environ.get("DYNAMICS_SERVICE_CLIENT_ID")
+    credentials.client_secret = environ.get("DYNAMICS_SERVICE_CLIENT_SECRET")
+
     if not credentials.exists():
         raise EnvironmentError("No se han establecido las credenciales del servicio Dynamics 365.")
 

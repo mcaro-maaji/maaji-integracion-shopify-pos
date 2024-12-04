@@ -9,10 +9,10 @@ from .dataclass import DataClass, config
 
 @dataclass
 class DataApiCredentials(DataClass):
-    grant_type: Optional[str] = environ.get("DYNAMICS_SERVICE_AUTH_GRANTYPE")
-    aad_tenant: Optional[str] = environ.get("DYNAMICS_SERVICE_AAD_TENANT")
-    client_id: Optional[str] = environ.get("DYNAMICS_SERVICE_CLIENT_ID")
-    client_secret: Optional[str] = environ.get("DYNAMICS_SERVICE_CLIENT_SECRET")
+    grant_type: Optional[str] = None
+    aad_tenant: Optional[str] = None
+    client_id: Optional[str] = None
+    client_secret: Optional[str] = None
     resource: str = ""
 
     def exists(self) -> bool:

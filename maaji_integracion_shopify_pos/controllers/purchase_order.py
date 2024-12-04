@@ -55,8 +55,6 @@ def create_from_service(payload: DataApiPayload,
     """Crear ordenes de compra en stocky mediante el servicio de D365."""
     bills = get_service("bills", payload, dynamics_env)
     data_purchase_orders = bills_to_purchase_orders(bills, store_key)
-    print(bills)
-    print(data_purchase_orders)
 
     if not data_purchase_orders:
         return None
