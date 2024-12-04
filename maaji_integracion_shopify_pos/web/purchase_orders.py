@@ -5,7 +5,7 @@ from datetime import date, datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
 from .webdriver import BrowserDriver, WebDriverWaitTimeOuted as Wait
 from .login import login_stocky
 from .stocky import WebStockyFile
@@ -107,7 +107,7 @@ class WebPurchaseOrderFile:
         locator = (By.XPATH, "/html/body/div[1]/div[1]/div/div[1]/div[1]/div/h1")
         until = EC.text_to_be_present_in_element(locator, " Purchase order #")
         try:
-            Wait(self.driver, 1).until(until)
+            Wait(self.driver).until(until)
             return True
         except TimeoutException:
             return False
@@ -182,12 +182,11 @@ class WebPurchaseOrderFile:
         if not is_current_purchase and not self.validate_exists():
             raise ValueError("No existe la orden de compra en Stocky.")
 
-        until = EC.element_to_be_clickable((By.ID, "receive_and_sync"))
         try:
             # valida que anchor receive (boton link de recibir) exista en la orden de compra.
-            Wait(self.driver, 1).until(until)
+            self.driver.find_element(By.ID, "receive_and_sync")
             return True
-        except TimeoutException:
+        except NoSuchElementException:
             return False
 
     def add_products(self) -> None:
@@ -348,8 +347,8 @@ class WebPurchaseOrderFile:
         """
         try:
             self.new()
-            self.add_products()
             self.fill_form()
+            self.add_products()
             self.mark_ordered()
         except WebDriverException as err:
             if not skip_err:
