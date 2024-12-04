@@ -59,6 +59,9 @@ def request_service(service: KeySitesStockyAPI,
                     **kwargs: Any) -> dict[str, Any]:
     """Lanzar el servicio de la API de Stocky."""
     data_stocky: DataStocky = getattr(data, store_key)
+    if not data_stocky.api_key:
+        raise RequestException("No se ha configurado una API key para el servicio de Stocky.")
+
     url_store = Configuration.get_site("shopify_store:" + store_key)
     url_service = Configuration.get_site("stocky_api", "select_" + service, **kwargs)
     url_service_query = urlencode(query._asdict())
