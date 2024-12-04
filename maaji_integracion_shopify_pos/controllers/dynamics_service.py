@@ -1,7 +1,7 @@
 """TODO: DOCS"""
 
 from datetime import datetime
-from .locations import WebLocations
+from .locations import get_weblocations
 # from .stocky import WebStocky, ApiStockySuppliers ### En caso de que proveedor deje ser ART MODE.
 from ..data import (dynamics_service as Dynamics, DataPurchaseOrderItemsFile,
                     DataPurchaseOrdersFile, DataLocation)
@@ -23,6 +23,7 @@ def bill_line_to_purchase_item(bill: Dynamics.DataApiServiceBills, /):
 
 def validate_bill_store(bill: Dynamics.DataApiServiceBills, store_key: KeySitesShopifyStores, /):
     """Realiza la validación de la tienda y homologa el campo con la localización el shopify."""
+    WebLocations = get_weblocations()
     WebLocations.update_from_last_updated_at()
 
     fieldmapping_stores = FieldMapping.stores.find(lambda fd: bill.tienda in fd.codes \

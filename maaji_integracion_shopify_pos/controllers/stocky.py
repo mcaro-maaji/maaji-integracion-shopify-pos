@@ -1,5 +1,6 @@
 """TODO: DOCS"""
 
+from functools import lru_cache
 from ..data.dataclass import FileJSONContext
 from ..data import DataStockyFile, DataSuppliersFile
 from ..web.webdriver import get_webdriver
@@ -14,8 +15,12 @@ DataStockyContext = FileJSONContext(onsave=FileJSONContext.OnSave(indent=4))
 DataStocky.setcontext(DataStockyContext)
 DataStocky.load_file()
 
-WebStocky = WebStockyFile(get_webdriver(), DataStocky)
-WebStocky.update_from_last_updated_at()
+@lru_cache()
+def get_webstocky():
+    """Devuelve el controlador web de los datos básicos de stocky."""
+    web_stocky = WebStockyFile(get_webdriver(), DataStocky)
+    web_stocky.update_from_last_updated_at()
+    return web_stocky
 
 DataSuppliers = DataSuppliersFile()
 DataSuppliers.setname("suppliers.json")
@@ -24,5 +29,9 @@ DataSuppliersContext = FileJSONContext(onsave=FileJSONContext.OnSave(indent=4))
 DataSuppliers.setcontext(DataSuppliersContext)
 DataSuppliers.load_file()
 
-ApiStockySuppliers = ApiStockyFile(DataStocky, DataSuppliers)
-ApiStockySuppliers.update_from_last_updated_at()
+@lru_cache()
+def get_apistocky_suppliers():
+    """Devuelve el controlador api de los proveedores en stocky."""
+    api_stocky_suppliers = ApiStockyFile(DataStocky, DataSuppliers)
+    api_stocky_suppliers.update_from_last_updated_at()
+    return api_stocky_suppliers
