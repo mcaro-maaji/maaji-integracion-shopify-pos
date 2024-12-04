@@ -8,10 +8,11 @@ Modulo para hacer login en los sitios web principales de la integración.
 from os import environ
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
 from .webdriver import BrowserDriver, WebDriverWaitTimeOuted as Wait
 from ..config import Configuration, KeySitesShopifyStores
-from ..utils import UrlParser, function_for_test, wait_changes_file, CURRENT_WORKING_DIR, load_dotenv
+from ..utils import (UrlParser, function_for_test, wait_changes_file,
+                     CURRENT_WORKING_DIR, load_dotenv)
 
 @function_for_test
 def login_shopify_resolve_segurity_tfa(driver: BrowserDriver, /, timeout=30) -> None:
@@ -151,14 +152,23 @@ def login_stocky(
     if shopify:
         login_shopify_admin(driver)
 
+    if not is_on_stocky(driver):
+        driver.get(Configuration.sites.stocky)
+
+    store_url = Configuration.get_site("shopify_store:" + store_key)
+    try:
+        driver.find_element(By.PARTIAL_LINK_TEXT, store_url.netloc)
+        return None
+    except NoSuchElementException:
+        pass
+
     driver.get(Configuration.get_site("stocky", "login").geturl())
 
     if not is_on_stocky_login(driver):
         msg = f"No se ha podido iniciar sesion en Stocky: '{Configuration.sites.shopify_login}'"
         raise WebDriverException(msg)
 
-    store_name = Configuration.get_site("shopify_store:" + store_key).hostname or "<never>"
     input_shop = Wait(driver).until(EC.visibility_of_element_located((By.ID, "shop")))
-    input_shop.send_keys(store_name)
+    input_shop.send_keys(store_url.netloc)
     submit_button = Wait(driver).until(EC.element_to_be_clickable((By.TAG_NAME, "button")))
     submit_button.click()
