@@ -13,7 +13,7 @@ from ..data import DataPurchaseOrdersFile, FilePurchaseOrderContext
 from ..config import KeySitesDynamics, KeySitesShopifyStores
 from ..utils import WORKING_DIR, ENVIRONMENT
 
-PURCHASE_DIR = WORKING_DIR / ("tests" if ENVIRONMENT == "dev" else "") / "pedido_de_compra"
+PURCHASE_DIR = WORKING_DIR / ("" if ENVIRONMENT == "prod" else "tests") / "pedido_de_compra"
 
 default_context = FilePurchaseOrderContext()
 default_fieldnames = ['id',	'number', 'invoice_number', 'supplier_name', 'supplier_id',
@@ -25,11 +25,6 @@ default_fieldnames = [None, None, None, *default_fieldnames]
 
 def create_from_path(path: str, /):
     """Crea una orden de compra desde una ruta."""
-
-    driver = get_webdriver()
-    web_locations = get_weblocations()
-    web_stocky = get_webstocky()
-    api_stocky_suppliers = get_apistocky_suppliers()
 
     data_purchase_order = DataPurchaseOrdersFile()
 
@@ -43,12 +38,14 @@ def create_from_path(path: str, /):
     data_purchase_order.setpath(path)
     data_purchase_order.load_file(skip_err=False)
 
+    driver = get_webdriver()
+    web_locations = get_weblocations()
+    web_stocky = get_webstocky()
+    api_stocky_suppliers = get_apistocky_suppliers()
+
     web_purchase_order = WebPurchaseOrderFile(driver, web_locations, web_stocky,
                                               api_stocky_suppliers, data_purchase_order)
     web_purchase_order.create(skip_err=True)
-
-    driver.close()
-    driver.quit()
 
 
 def create_from_service(payload: DataApiPayload,
@@ -56,18 +53,24 @@ def create_from_service(payload: DataApiPayload,
                         dynamics_env: KeySitesDynamics,
                         /):
     """Crear ordenes de compra en stocky mediante el servicio de D365."""
-    driver = get_webdriver()
-    web_locations = get_weblocations()
-    web_stocky = get_webstocky()
-    api_stocky_suppliers = get_apistocky_suppliers()
-
     bills = get_service("bills", payload, dynamics_env)
     data_purchase_orders = bills_to_purchase_orders(bills, store_key)
+    print(bills)
+    print(data_purchase_orders)
+
+    if not data_purchase_orders:
+        return None
+
     context = FilePurchaseOrderContext()
     context.onload.fieldnames = default_fieldnames
     context.purchase_items_context.onload.fieldnames = default_items_fieldnames
     context.onsave.fieldnames = default_fieldnames
     context.purchase_items_context.onsave.fieldnames = default_items_fieldnames
+
+    driver = get_webdriver()
+    web_locations = get_weblocations()
+    web_stocky = get_webstocky()
+    api_stocky_suppliers = get_apistocky_suppliers()
 
     for data_purchase_order in data_purchase_orders:
         date_str = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
@@ -76,17 +79,19 @@ def create_from_service(payload: DataApiPayload,
         data_purchase_order.setpath(PURCHASE_DIR / "Entrada", FileStatus.ON_HOLD)
         data_purchase_order.setpath(PURCHASE_DIR / "Almacenamiento", FileStatus.COMPLETED)
         data_purchase_order.setpath(PURCHASE_DIR / "Rechazado", FileStatus.ON_REJECT)
+        data_purchase_order.setcontext(context)
+
         status = FileStatus.ON_HOLD
         data_purchase_order.setstatus(status)
-        data_purchase_order.setcontext(context)
         data_purchase_order.save_file()
         try:
             web_purchase_order = WebPurchaseOrderFile(driver, web_locations, web_stocky,
-                                                    api_stocky_suppliers, data_purchase_order)
+                                                      api_stocky_suppliers, data_purchase_order)
             web_purchase_order.create(skip_err=False)
             status = FileStatus.COMPLETED
         except (WebDriverException, ValueError):
             status = FileStatus.ON_REJECT
+
         data_purchase_order.flush_row()
         data_purchase_order.save_file()
         data_purchase_order.move_file(status)

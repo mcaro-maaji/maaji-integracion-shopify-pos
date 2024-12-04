@@ -23,8 +23,8 @@ def bill_line_to_purchase_item(bill: Dynamics.DataApiServiceBills, /):
 
 def validate_bill_store(bill: Dynamics.DataApiServiceBills, store_key: KeySitesShopifyStores, /):
     """Realiza la validación de la tienda y homologa el campo con la localización el shopify."""
-    WebLocations = get_weblocations()
-    WebLocations.update_from_last_updated_at()
+    web_locations = get_weblocations()
+    web_locations.update_from_last_updated_at()
 
     fieldmapping_stores = FieldMapping.stores.find(lambda fd: bill.tienda in fd.codes \
                                                    or bill.tienda in fd.names)
@@ -34,7 +34,7 @@ def validate_bill_store(bill: Dynamics.DataApiServiceBills, store_key: KeySitesS
     err = ValueError(err_msg.format(bill.numero_factura))
 
     if store_names:
-        locations: list[DataLocation] = getattr(WebLocations.data, store_key)
+        locations: list[DataLocation] = getattr(web_locations.data, store_key)
         location = next((location for location in locations if location.name in store_names), None)
     else:
         raise err
@@ -119,6 +119,7 @@ def bills_to_purchase_orders(bills: list[Dynamics.DataApiServiceBills],
         try:
             purchase_order = bill_to_purchase_order(bill, store_key)
             purchase_orders.append(purchase_order)
-        except ValueError: # No se homologa el campo Tienda con la localizacion en shopify
+        except ValueError as err: # No se homologa el campo Tienda con la localizacion en shopify
+            print("Error:", err)
             pass
     return purchase_orders
