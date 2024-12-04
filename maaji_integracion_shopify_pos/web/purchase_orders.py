@@ -242,7 +242,10 @@ class WebPurchaseOrderFile:
         dropdown("cost_column").select_by_visible_text(cost_column)
 
         Wait(self.driver).until(EC.element_to_be_clickable((By.NAME, "commit"))).click()
-
+        skipped_locator = (By.XPATH, "/html/body/div[1]/div[3]/div/div/p[2]/span")
+        skipped_element = Wait(self.driver).until(EC.visibility_of_element_located(skipped_locator))
+        if int(skipped_element.text) > 0:
+            raise ValueError("No se han encontrado algunos productos para la orden de compra.")
 
     # FIXME: Arreglar esta caracteristica de añadir el campo ENVIO.
     # def edit_shipping_purchase_order(driver: BrowserDriver, data: DataPurchaseOrder):
