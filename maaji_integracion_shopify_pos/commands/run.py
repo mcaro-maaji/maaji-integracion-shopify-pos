@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import click
 from ..controllers import purchase_order
 from ..config import key_sites_shopify_stores as key_stores
+from ..utils import ENVIRONMENT
 
 dt_formats = ("%d/%m/%Y", "%d/%m/%YT%H:%M:%S", "%d/%m/%Y %H:%M:%S",
                     "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%H:%M:%S")
@@ -45,6 +46,10 @@ class DateOrDeltaTime(click.DateTime):
 @click.option("-ts", "-ds", "--time-start", "--date-start", type=DateOrDeltaTime(dt_formats))
 def run_purchase_orders(store, env, date_end: datetime, time_start):
     """Ejecuta el servicio de crear ordenes de compra Stocky mediante el servicio D365."""
+    if ENVIRONMENT != "prod" and store in ["maaji_pos", "maaji_pos_outlet"]:
+        msg = "No se puede ejecutar el comando sin la variable de entorno en producción."
+        raise EnvironmentError(msg)
+
     if time_start is None:
         time_start = date_end.replace(hour=0, minute=0, second=0, microsecond=0)
     if isinstance(time_start, timedelta):

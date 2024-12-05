@@ -92,3 +92,4 @@ def create_from_service(payload: DataApiPayload,
         data_purchase_order.flush_row()
         data_purchase_order.save_file()
         data_purchase_order.move_file(status)
+    return None
