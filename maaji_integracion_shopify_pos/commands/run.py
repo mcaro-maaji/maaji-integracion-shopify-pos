@@ -42,13 +42,23 @@ class DateOrDeltaTime(click.DateTime):
 @click.command("purchase-orders")
 @click.option("-s", "--store", type=click.Choice(key_stores), required=True)
 @click.option("-e", "--env", type=click.Choice(("uat", "prod")), default="prod")
-@click.option("-d", "--date-end", "--date", type=click.DateTime(dt_formats), default=datetime.now())
+@click.option("-t", "-d", "--time-end", "--date-end", "--date", type=DateOrDeltaTime(dt_formats))
 @click.option("-ts", "-ds", "--time-start", "--date-start", type=DateOrDeltaTime(dt_formats))
-def run_purchase_orders(store, env, date_end: datetime, time_start):
+def run_purchase_orders(store, env, time_end, time_start):
     """Ejecuta el servicio de crear ordenes de compra Stocky mediante el servicio D365."""
     if ENVIRONMENT != "prod" and store in ["maaji_pos", "maaji_pos_outlet"]:
         msg = "No se puede ejecutar el comando sin la variable de entorno en producción."
         raise EnvironmentError(msg)
+
+    datetime_now = datetime.now()
+    if time_end is None:
+        time_end = datetime_now
+    if isinstance(time_end, timedelta):
+        date_end = datetime_now + time_end
+    elif isinstance(time_end, datetime):
+        date_end = time_end
+    else:
+        raise ValueError("No se ha establecido la fecha de fin '--date-end'.")
 
     if time_start is None:
         time_start = date_end.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -60,6 +70,8 @@ def run_purchase_orders(store, env, date_end: datetime, time_start):
         raise ValueError("No se ha establecido la fecha de inicio '--date-start'.")
 
     payload = purchase_order.DataApiPayload("AM", date_start, date_end)
+    print("DATE_START:", date_start)
+    print("DATE_END  :", date_end)
     purchase_order.create_from_service(payload, store, env)
 
 @click.group()
