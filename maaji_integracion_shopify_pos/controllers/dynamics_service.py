@@ -58,7 +58,7 @@ def one_bill_line_to_purchase_order(bill: Dynamics.DataApiServiceBills,
     tienda = validate_bill_store(bill, store_key)
     # tienda = 72046280749 # bill.tienda <- ID localizacion Shopify = MAAJI MAYORCA Test
     proveedor = validate_bill_supplier(bill)
-    fecha_factura = datetime.strptime(bill.fecha_factura, "%d/%m/%Y").date()
+    fecha_factura = datetime.strptime(bill.fecha_factura, "%m/%d/%Y").date()
 
     return DataPurchaseOrdersFile(
         invoice_number=bill.numero_factura,
