@@ -287,7 +287,7 @@ class WebPurchaseOrderFile:
             element.send_keys(str(send_keys))
 
         if not self.data.amount_paid is None:
-            fill_element("total_field_{self.data.id}", str(self.data.amount_paid))
+            fill_element("total_field_{self.data.id}", str(round(self.data.amount_paid, 2)))
 
         if not self.data.paid is None:
             input_paid = self.driver.find_element(By.ID, "purchase_order_paid")

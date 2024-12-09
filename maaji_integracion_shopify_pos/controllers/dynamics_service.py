@@ -72,6 +72,7 @@ def one_bill_line_to_purchase_order(bill: Dynamics.DataApiServiceBills,
 def splitlines_bills(bills: list[Dynamics.DataApiServiceBills], /):
     """Ordena cada linea de las facturas de D365 por numero de factura y separa por cada factura."""
     bills_sorted = sorted(bills, key=lambda bill: bill.numero_factura)
+    bills_sorted = filter(lambda bill: bill.numero_factura.startswith("FEV"), bills_sorted)
     bills_lines_splited: list[list[Dynamics.DataApiServiceBills]] = []
     bill_temp: list[Dynamics.DataApiServiceBills] = []
 
@@ -102,6 +103,7 @@ def bill_to_purchase_order(bills: list[Dynamics.DataApiServiceBills],
     purchase_items = bill_lines_to_purchase_items(bills)
     row_purchase_order = one_bill_line_to_purchase_order(bills[0], store_key)
     row_purchase_order.purchase_items = purchase_items
+    row_purchase_order.amount_paid = sum((float(i.cost_price) * i.quantity for i in purchase_items))
     purchase_order = DataPurchaseOrdersFile()
     purchase_order.__csv_rows__.append(row_purchase_order)
     purchase_order.setrow()
