@@ -33,7 +33,6 @@
 			"envFile": "${workspaceFolder}/.env",
 			"env": {
 				"WORKING_DIR_MAAJI_INTEGRACION_SHOPIFY_POS": "${workspaceFolder}\\data\\",
-				"ENVIRONMENT": "production"
 			}
 		}
 	]
