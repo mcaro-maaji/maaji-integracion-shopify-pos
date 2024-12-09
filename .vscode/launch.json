@@ -25,14 +25,15 @@
 				"run",
 				"purchase-orders",
 				"--store=maaji_co_test",
-				"--date=2/8/2024T23:59:59",
-				"--env=uat"
+				"--date=24/11/2024T23:59:59",
+				"--env=prod"
 			],
 			// "program": "${workspaceFolder}\\src\\main.py",
 			"console": "integratedTerminal",
 			"envFile": "${workspaceFolder}/.env",
 			"env": {
-				"WORKING_DIR_MAAJI_INTEGRACION_SHOPIFY_POS": "${workspaceFolder}\\data\\"
+				"WORKING_DIR_MAAJI_INTEGRACION_SHOPIFY_POS": "${workspaceFolder}\\data\\",
+				"ENVIRONMENT": "production"
 			}
 		}
 	]

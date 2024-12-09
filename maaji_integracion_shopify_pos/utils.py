@@ -23,29 +23,21 @@ T = TypeVar("T")
 NAME_PROYECT = "Maaji Integracion Shopify POS"
 ROOT_DIR = Path(__file__).parent
 CURRENT_WORKING_DIR = Path.cwd()
-DEFAULT_WORKING_DIR = Path.home() / (".data-" + NAME_PROYECT.replace(" ", "-"))
-__KEY_ENV_WORKING_DIR = "WORKING_DIR_" + NAME_PROYECT.replace(" ", "_").upper()
-WORKING_DIR = Path(environ.get(__KEY_ENV_WORKING_DIR) or DEFAULT_WORKING_DIR)
-ENVIRONMENT = "prod" if environ.get("ENVIRONMENT", "").lower() == "production" else "dev"
+DEFAULT_WORKING_DIR = Path.home() / (".data-" + NAME_PROYECT.replace(" ", "-").lower())
+KEY_ENV_WORKING_DIR = "WORKING_DIR_" + NAME_PROYECT.replace(" ", "_").upper()
+WORKING_DIR = Path(environ.get(KEY_ENV_WORKING_DIR) or DEFAULT_WORKING_DIR)
 
-def __create_data_dir(path: Path, /) -> None:
-    return path.mkdir(mode=511, parents=True, exist_ok=True)
-
-
-if not WORKING_DIR.exists():
-    __create_data_dir(WORKING_DIR)
-elif not WORKING_DIR.is_dir():
-    __create_data_dir(DEFAULT_WORKING_DIR)
+if WORKING_DIR.exists() and not WORKING_DIR.is_dir():
     WORKING_DIR = DEFAULT_WORKING_DIR
-
+WORKING_DIR.mkdir(mode=511, parents=True, exist_ok=True)
 
 def load_dotenv(dotenv_path=WORKING_DIR / ".env", / , override=False):
     """Cargar las variables de entorno."""
-
-    if ENVIRONMENT == "prod":
-        override = False
     return __load_dotenv(dotenv_path, override=override)
 
+# En un entorno productivo el archivo .env debe estar en la carpeta WORKING_DIR
+load_dotenv()
+ENVIRONMENT = "prod" if environ.get("ENVIRONMENT", "").lower() == "production" else "dev"
 
 class UrlParser(AbsUrlParseResult):
     """
