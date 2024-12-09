@@ -24,8 +24,8 @@
 			"args": [
 				"run",
 				"purchase-orders",
-				"--store=maaji_co_test",
-				"--date=24/11/2024T23:59:59",
+				"--store=maaji_pos_outlet",
+				"--date=04/12/2024T23:59:59",
 				"--env=prod"
 			],
 			// "program": "${workspaceFolder}\\src\\main.py",

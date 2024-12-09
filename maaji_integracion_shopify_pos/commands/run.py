@@ -70,8 +70,6 @@ def run_purchase_orders(store, env, time_end, time_start):
         raise ValueError("No se ha establecido la fecha de inicio '--date-start'.")
 
     payload = purchase_order.DataApiPayload("AM", date_start, date_end)
-    print("DATE_START:", date_start)
-    print("DATE_END  :", date_end)
     purchase_order.create_from_service(payload, store, env)
 
 @click.group()
