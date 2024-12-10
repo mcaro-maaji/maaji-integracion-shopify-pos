@@ -91,9 +91,9 @@ class ConfigWebDriver(DataClass):
                         `--window-size` es usado para establecer el tamaño de la ventana.
                         `--headless` ejecutar el navegador pero sin abrir una ventana del navegador.
         """
-        add_arguments: list[str] = field(default_factory=lambda: ["--window-size=1024,800"])
+        add_arguments: list[str] = field(default_factory=lambda: ["--headless", "--log-level-3"])
 
-    wait_timeout: float = 10
+    wait_timeout: float = 30
     profile: str = "profile_default"
     options: Options = field(default_factory=Options)
     name_webdriver: str = "chrome"
