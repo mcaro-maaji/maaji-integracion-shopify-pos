@@ -41,7 +41,7 @@ class DataClassFile(DataClass):
     __metadata__: MetaDataClassFile = field(default_factory=MetaDataClassFile)
 
     @final
-    def metadata_update(self) -> dict[str, Any]:
+    def metadata_update(self, *, force=True) -> dict[str, Any]:
         """
         Actualiza los metadatos despues de un evento, por ejemplo, al guardar un archivo.
 
@@ -51,7 +51,7 @@ class DataClassFile(DataClass):
         copy_old_metadata = deepcopy(self.__metadata__.__dict__)
         if not self.__metadata__.created_at:
             self.__metadata__.created_at = current_datetime
-        if not self.__metadata__.updated_at:
+        if not self.__metadata__.updated_at or force:
             self.__metadata__.updated_at = current_datetime
         return copy_old_metadata
 
@@ -153,12 +153,12 @@ class DataClassFile(DataClass):
         path = self.getpath()
         name = self.getname()
         if not path or not name:
-            return None
+            raise ValueError("No se ha establecido una ruta valida para leer el archivo.")
         try:
             with open(path / name, encoding=encoding) as file:
                 status_err = self.onload_file(file, context)
                 if not status_err:
-                    self.metadata_update()
+                    self.metadata_update(force=False)
                     self.__metadata__.last_accessed_at = datetime.now()
         except FileNotFoundError as err:
             err.strerror = "Archivo no encontrado para el dataclass"
@@ -201,7 +201,7 @@ class DataClassFile(DataClass):
         path = self.getpath()
         name = self.getname()
         if not path or not name:
-            return None
+            raise ValueError("No se ha establecido una ruta valida para guardar el archivo.")
         path.mkdir(mode=511, parents=True, exist_ok=True)
         copy_old_metadata = self.metadata_update()
         try:
@@ -217,15 +217,14 @@ class DataClassFile(DataClass):
         return None
 
     @final
-    def replace(self, __dataclass: DataClass, replace_metadata=False, /) -> None:
+    def replace(self, __dataclass: DataClass, /) -> None:
         """Reemplaza los campos de un dataclass con otro."""
         if not isinstance(__dataclass, DataClass):
             raise TypeError("Se esperaba un tipo 'DataClass' como valor.")
 
         fieldnames = self.schema().fields.keys()
         dtcls_fieldnames = list(__dataclass.schema().fields.keys())
-        if not replace_metadata and "__metadata__" in dtcls_fieldnames:
-            dtcls_fieldnames.remove("__metadata__")
+        dtcls_fieldnames.remove("__metadata__")
         new_dict = {key: __dataclass.__dict__[key] for key in fieldnames if key in dtcls_fieldnames}
         self.__dict__.update(new_dict)
 

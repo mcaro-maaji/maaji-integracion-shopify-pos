@@ -64,6 +64,7 @@ class DataClassFileJson(DataClassFile):
             err.args = (f"Error al cargar el archivo: '{__file.name}'",)
             raise err
         self.replace(json_config)
+        self.__metadata__ = json_config.__metadata__
         return 0
 
     def onsave_file(self, __file: TextIOWrapper, context: FileContext, /) -> int:
