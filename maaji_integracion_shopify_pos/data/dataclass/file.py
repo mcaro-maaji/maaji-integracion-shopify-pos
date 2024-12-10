@@ -7,7 +7,7 @@ from pathlib import Path
 from copy import deepcopy
 from io import TextIOWrapper
 from datetime import datetime
-from shutil import move as move_file
+from shutil import move as move_file, rmtree
 from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin as DataClass
 from maaji_integracion_shopify_pos.utils import deep_del_key
@@ -232,6 +232,8 @@ class DataClassFile(DataClass):
     def move_file(self, status: EnumMetaDataFileStatus) -> None:
         """Mueve el archivo dependiendo del estado del mismo."""
         name = self.getname()
+        if not name:
+            raise ValueError("No se ha establecido una ruta valida del archivo.")
         if self.getstatus() == status:
             return None
         current_path = self.getpath()
@@ -239,9 +241,19 @@ class DataClassFile(DataClass):
         new_path = self.getpath()
 
         if current_path is None or new_path is None:
-            raise TypeError("No se puede mover el archivo: La ruta fuente o destino es nulo.")
+            raise ValueError("No se puede mover el archivo, La ruta destino es nulo.")
 
         current_path.mkdir(mode=511, parents=True, exist_ok=True)
         new_path.mkdir(mode=511, parents=True, exist_ok=True)
         move_file(current_path / name, new_path / name)
         return None
+
+    @final
+    def remove_file(self) -> None:
+        """Elimina el archivo."""
+        path = self.getpath()
+        name = self.getname()
+        if not path or not name:
+            raise ValueError("No se ha establecido una ruta valida del archivo.")
+        full_path = path / name
+        full_path.unlink(missing_ok=True)
