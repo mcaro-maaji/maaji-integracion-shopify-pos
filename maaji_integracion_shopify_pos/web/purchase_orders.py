@@ -191,7 +191,6 @@ class WebPurchaseOrderFile:
         dropdown("generate").select_by_visible_text("Blank")
         # Validación de la localización de la tienda.
         dropdown("location_id").select_by_value(str(location.stocky_id))
-        raise Exception("brakpoint de pruebas")
         Wait(self.driver).until(EC.element_to_be_clickable((By.NAME, "commit"))).click()
         self.set_id_data()
 
