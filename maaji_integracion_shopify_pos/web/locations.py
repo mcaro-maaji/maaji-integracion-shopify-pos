@@ -40,7 +40,6 @@ class WebLocationsFile:
 
         Nota: Se requiere haber iniciado sesion en el sitio Shopify Admin.
         """
-        login_stocky(self.driver, store_key)
         url_locations = Configuration.get_site("stocky", "select_locations").geturl()
         self.driver.get(url_locations)
 
@@ -69,6 +68,10 @@ class WebLocationsFile:
 
         for store_key in key_sites_shopify_stores:
             self.get_locations(store_key)
+            try:
+                login_stocky(self.driver, store_key)
+            except WebDriverException:
+                continue
             self.set_stocky_id(store_key)
 
         self.driver.get(current_url)
