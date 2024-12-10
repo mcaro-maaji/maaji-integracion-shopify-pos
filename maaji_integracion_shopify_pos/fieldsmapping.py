@@ -36,7 +36,8 @@ class Stores(DataClass):
     shopify: tuple[Fields, ...] = (
         Fields(id=1, names=["Unidad Industrial Vegas de Sabaneta"]),
         Fields(id=2, names=["Zona Franca Rionegro", "ZN", "Vereda Chachafruto Zona Franca"]),
-        Fields(id=3, names=["MAAJI MAYORCA OULET", "Tienda Mayorca"]),
+        Fields(id=3, names=["MAAJI MAYORCA OULET",
+                            "MAAJI MAYORCA CENTRO COMERCIAL", "Tienda Mayorca"]),
         Fields(id=4, names=["MAAJI MONTERIA", "Tienda Montaria"]),
         Fields(id=10, names=["POS Prueba", "Tiendas Maaji Pruebas"])
     )

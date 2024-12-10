@@ -263,7 +263,7 @@ class ConfigPurchaseOrders(DataClass):
                                 no se establece uno en la propia orden de compra.
     """
     timeout_add_products: float = 300 # 300 segundos = 5 minutos
-    default_supplier_name_like: str = "ART MODE S.A.S. BIC"
+    default_supplier_name_like: str = "ART MODE S.A.S."
 
 
 @dataclass

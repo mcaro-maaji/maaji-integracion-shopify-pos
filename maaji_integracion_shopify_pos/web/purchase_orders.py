@@ -70,19 +70,24 @@ class WebPurchaseOrderFile:
         index = -1
 
         for idx, supplier in enumerate(suppliers):
-            if (supplier_id is not None and supplier.id == supplier_id) \
-                or supplier.name == supplier_name:
-                if suppliers[idx].is_hidden is not None and suppliers[idx].is_hidden:
+            is_by_id = supplier_id is not None and supplier.id == supplier_id
+            is_by_name = supplier_name is not None and supplier.name == supplier_name
+            is_by_name_like = supplier.name and supplier_name \
+                  and supplier.name.upper().startswith(supplier_name.upper())
+            is_hidden = suppliers[idx].is_hidden is not None and suppliers[idx].is_hidden
+
+            if is_by_id or is_by_name or is_by_name_like:
+                if is_hidden:
                     continue
                 index = idx
             if index != -1:
                 break
 
         if index != -1 and supplier_id:
-            self.data.supplier_id = supplier_id
+            self.data.supplier_id = suppliers[index].id
             self.data.supplier_name = suppliers[index].name
         elif supplier_id is None and index != -1 and supplier_name:
-            self.data.supplier_name = supplier_name
+            self.data.supplier_name = suppliers[index].name
             self.data.supplier_id = suppliers[index].id
         else:
             raise ValueError("No se ha establecido un proveedor correcto en la orden de compra.")
@@ -140,6 +145,22 @@ class WebPurchaseOrderFile:
         self.data.number = int(input_order_number.get_attribute("value"))
         return None
 
+    def is_mark_ordered(self) -> bool:
+        """Comprueba que la orden de compra esté marcado como ordenado."""
+        self.validate_data_id()
+        url = Configuration.get_site("stocky", "select_purchase_order", id=self.data.id)
+        is_current_purchase = self.driver.current_url == url.geturl()
+
+        if not is_current_purchase and not self.validate_exists():
+            raise ValueError("No existe la orden de compra en Stocky.")
+
+        try:
+            # valida que anchor receive (boton link de recibir) exista en la orden de compra.
+            self.driver.find_element(By.ID, "receive_and_sync")
+            return True
+        except NoSuchElementException:
+            return False
+
     def new(self) -> None:
         """Via Web crear la orden de compra, valida la localización y el proveedor."""
         if self.validate_exists() or self.data.getstatus() == EnumMetaDataFileStatus.COMPLETED:
@@ -172,22 +193,6 @@ class WebPurchaseOrderFile:
         dropdown("location_id").select_by_value(str(location.stocky_id))
         Wait(self.driver).until(EC.element_to_be_clickable((By.NAME, "commit"))).click()
         self.set_id_data()
-
-    def is_mark_ordered(self) -> bool:
-        """Comprueba que la orden de compra esté marcado como ordenado."""
-        self.validate_data_id()
-        url = Configuration.get_site("stocky", "select_purchase_order", id=self.data.id)
-        is_current_purchase = self.driver.current_url == url.geturl()
-
-        if not is_current_purchase and not self.validate_exists():
-            raise ValueError("No existe la orden de compra en Stocky.")
-
-        try:
-            # valida que anchor receive (boton link de recibir) exista en la orden de compra.
-            self.driver.find_element(By.ID, "receive_and_sync")
-            return True
-        except NoSuchElementException:
-            return False
 
     def add_products(self) -> None:
         """Añadir los productos a una orden de compra."""
