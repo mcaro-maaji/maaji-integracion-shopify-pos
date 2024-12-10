@@ -137,7 +137,10 @@ class ApiStockyFile:
 
         service_data = {}
         for store_key in key_sites_shopify_stores:
-            response = get_service(service_key, store_key, self.data, query=query, **kwargs)
+            try:
+                response = get_service(service_key, store_key, self.data, query=query, **kwargs)
+            except RequestException:
+                continue
             service_data[store_key] = response
 
         service_instance = self.service.from_dict(service_data)

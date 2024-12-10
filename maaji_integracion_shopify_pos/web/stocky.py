@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
 from .webdriver import BrowserDriver, WebDriverWaitTimeOuted as Wait
 from .login import login_shopify_admin, is_on_shopify_admin, login_stocky
 from ..config import Configuration, key_sites_shopify_stores, KeySitesShopifyStores
@@ -29,10 +29,10 @@ class WebStockyFile:
         except NoSuchElementException:
             css_selector = "a[href^=\"/accounts/create_api_key\"]"
             until = EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector))
-            Wait(self.driver).until(until).click()
             try:
+                Wait(self.driver).until(until).click()
                 element_api_key = self.driver.find_element(By.TAG_NAME, "code")
-            except NoSuchElementException as err:
+            except (NoSuchElementException, TimeoutException) as err:
                 err.msg = "No se ha encontrado el elemento para obtener la api key de stocky."
                 raise err
 
@@ -48,7 +48,10 @@ class WebStockyFile:
             return None
 
         for store_key in key_sites_shopify_stores:
-            login_stocky(self.driver, store_key)
+            try:
+                login_stocky(self.driver, store_key)
+            except WebDriverException:
+                continue
             self.get_api_key(store_key)
 
         self.driver.get(current_url)
