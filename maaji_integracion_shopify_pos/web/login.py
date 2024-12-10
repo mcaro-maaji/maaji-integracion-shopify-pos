@@ -133,9 +133,39 @@ def login_shopify_admin(driver: BrowserDriver) -> None:
     else:
         raise WebDriverException("Modelo de login en Shopify no soportado.")
 
+def login_stocky_user(driver: BrowserDriver, /) -> None:
+    """Login de usuario Automaitzación en Stocky."""
+    try:
+        title = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div/div/h1")
+        login_card = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/legend")
+    except NoSuchElementException:
+        return None # No existe la seguridad de iniciar sesión por usuario.
 
-def login_stocky(
-                 driver: BrowserDriver,
+    if not ("User Login" in title.text and "Please Sign In" in login_card.text):
+        raise WebDriverException("No se ha podido iniciar sesion de usuario en Stocky.")
+
+    shopify_email = environ.get("SHOPIFY_EMAIL")
+    shopify_password = environ.get("SHOPIFY_PASSWORD")
+
+    if shopify_email is None or shopify_password is None:
+        msg = "No se han establecido credenciales para iniciar sesion en shopify admin."
+        raise WebDriverException(msg)
+
+    input_email = Wait(driver).until(EC.visibility_of_element_located((By.ID, "email")))
+    input_email.send_keys(shopify_email)
+    input_password = Wait(driver).until(EC.visibility_of_element_located((By.ID, "password")))
+    input_password.send_keys(shopify_password)
+    Wait(driver).until(EC.element_to_be_clickable((By.NAME, "commit"))).click()
+
+    try:
+        credential_not_valid = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div[3]/h2")
+        if "Username or password was incorrect." in credential_not_valid.text:
+            msg = "Las credenciales para login de usuario en Stocky no son validas."
+            raise WebDriverException(msg)
+    except NoSuchElementException:
+        pass
+
+def login_stocky(driver: BrowserDriver,
                  store_key: KeySitesShopifyStores,
                  *,
                  shopify=False) -> None:
@@ -158,6 +188,7 @@ def login_stocky(
     store_url = Configuration.get_site("shopify_store:" + store_key)
     try:
         driver.find_element(By.PARTIAL_LINK_TEXT, store_url.netloc)
+        login_stocky_user(driver)
         return None
     except NoSuchElementException:
         pass
@@ -174,25 +205,4 @@ def login_stocky(
     submit_button.click()
 
     ### USER LOGIN
-
-    try:
-        title = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div/div/h1")
-        login_card = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/legend")
-    except NoSuchElementException:
-        return None # No existe la seguridad de iniciar sesión por usuario.
-
-    if not ("User Login" in title.text and "Please Sign In" in login_card.text):
-        raise WebDriverException("No se ha podido iniciar sesion de usuario en Stocky.")
-
-    shopify_email = environ.get("SHOPIFY_EMAIL")
-    shopify_password = environ.get("SHOPIFY_PASSWORD")
-
-    if shopify_email is None or shopify_password is None:
-        msg = "No se han establecido credenciales para iniciar sesion en shopify admin."
-        raise WebDriverException(msg)
-
-    input_email = Wait(driver).until(EC.visibility_of_element_located((By.ID, "email")))
-    input_email.send_keys(shopify_email)
-    input_password = Wait(driver).until(EC.visibility_of_element_located((By.ID, "password")))
-    input_password.send_keys(shopify_password)
-    Wait(driver).until(EC.element_to_be_clickable((By.NAME, "commit"))).click()
+    login_stocky_user(driver)
