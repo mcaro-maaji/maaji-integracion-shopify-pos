@@ -7,7 +7,7 @@ from pathlib import Path
 from copy import deepcopy
 from io import TextIOWrapper
 from datetime import datetime
-from shutil import move as move_file, rmtree
+from shutil import move as move_file
 from dataclasses import dataclass, field
 from dataclasses_json import DataClassJsonMixin as DataClass
 from maaji_integracion_shopify_pos.utils import deep_del_key
