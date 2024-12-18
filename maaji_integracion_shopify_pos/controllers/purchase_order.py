@@ -18,7 +18,7 @@ PURCHASE_DIR = WORKING_DIR / ("" if ENVIRONMENT == "prod" else "tests") / "pedid
 default_context = FilePurchaseOrderContext()
 default_fieldnames = ['id',	'number', 'invoice_number', 'supplier_name', 'supplier_id',
                       'currency', 'shopify_receive_location_id', 'invoice_date',
-                      'shopify_store_key_name', "amount_paid"]
+                      'shopify_store_key_name', "amount_items"]
 default_items_fieldnames = ['bar_code', 'quantity', 'cost_price']
 default_items_fieldnames.extend([None] * len(default_fieldnames))
 default_fieldnames = [None, None, None, *default_fieldnames]
