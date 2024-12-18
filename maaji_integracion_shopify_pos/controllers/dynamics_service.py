@@ -103,7 +103,8 @@ def bill_to_purchase_order(bills: list[Dynamics.DataApiServiceBills],
     purchase_items = bill_lines_to_purchase_items(bills)
     row_purchase_order = one_bill_line_to_purchase_order(bills[0], store_key)
     row_purchase_order.purchase_items = purchase_items
-    row_purchase_order.amount_paid = sum((float(i.cost_price) * i.quantity for i in purchase_items))
+    amount_items = sum((float(i.cost_price) * i.quantity for i in purchase_items))
+    row_purchase_order.amount_items = amount_items
     purchase_order = DataPurchaseOrdersFile()
     purchase_order.__csv_rows__.append(row_purchase_order)
     purchase_order.setrow()
