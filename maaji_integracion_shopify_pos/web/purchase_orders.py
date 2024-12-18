@@ -165,7 +165,7 @@ class WebPurchaseOrderFile:
         """Via Web crear la orden de compra, valida la localización y el proveedor."""
         if self.validate_exists() or self.data.getstatus() == EnumMetaDataFileStatus.COMPLETED:
             # No crear una nueva orden de compra si ya está en estado completo.
-            return None # TODO: Log event
+            return None
 
         [key_store, location] = self.validate_location()
         login_stocky(self.driver, key_store, shopify=True)
@@ -187,7 +187,7 @@ class WebPurchaseOrderFile:
 
         supplier = self.validate_supplier()
         dropdown("supplier_id").select_by_value(str(supplier.id))
-        # Caracteristica de Stocky sin relevancia # TODO: Revizar que utilidad brinda.
+        # Caracteristica de Stocky sin relevancia
         dropdown("generate").select_by_visible_text("Blank")
         # Validación de la localización de la tienda.
         dropdown("location_id").select_by_value(str(location.stocky_id))
@@ -251,34 +251,6 @@ class WebPurchaseOrderFile:
         skipped_element = Wait(self.driver).until(EC.visibility_of_element_located(skipped_locator))
         if int(skipped_element.text) > 0:
             raise ValueError("No se han encontrado algunos productos para la orden de compra.")
-
-    # FIXME: Arreglar esta caracteristica de añadir el campo ENVIO.
-    # def edit_shipping_purchase_order(driver: BrowserDriver, data: DataPurchaseOrder):
-    #     if data.id is None: return False
-    #     current_url = driver.current_url
-    #     shipping_is_none = data.shipping.first_row is None
-    #     shipping_tax_type_is_none = data.shipping.first_row is None
-
-    #     if not shipping_is_none or not shipping_tax_type_is_none:
-    #         url_update_shipping = BotConfig.get_site_action("shopify_stocky", "purchase_orders_update_shipping", id=data.id).geturl()
-    #         driver.get(url_update_shipping)
-    #         if not shipping_is_none:
-    #         driver.find_element(By.ID, f"purchase_order_shipping").send_keys = data.shipping.first_row
-            
-    #         shipping_tax_type = data.shipping_tax_type_id.first_row
-    #         if shipping_tax_type is not None and shipping_tax_type.isdecimal():
-    #         shipping_tax_type = int(shipping_tax_type)
-    #         shipping_tax_type = BotConfig.get_tax_type(shipping_tax_type)
-    #         else: shipping_tax_type = None
-
-    #         if shipping_tax_type_is_none is not None and shipping_tax_type is not None:
-    #         select_tax_type = Select(driver.find_element(By.ID, f"purchase_order_shipping_tax_type"))
-    #         select_tax_type.select_by_value=(data.shipping_tax_type_id.first_row)
-
-    #         driver.find_element(By.ID, "commit").click()
-    #         driver.get(current_url)
-    #         return True
-    #     return False
 
     def fill_form(self):
         """Rellena todo el formulario de datos en la orden de compra."""
