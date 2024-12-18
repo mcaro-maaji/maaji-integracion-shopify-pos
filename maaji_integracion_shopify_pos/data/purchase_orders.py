@@ -55,6 +55,7 @@ class DataPurchaseOrder(DataClass):
     shopify_address_shipping_id: Optional[int] = None
     payment_on: Optional[datetime] = None
     cancel_on: Optional[str] = None
+    amount_items: Optional[float] = None
     amount_paid: Optional[float] = None
     purchase_order_notes: Optional[str] = None
     supplier_notes: Optional[str] = None

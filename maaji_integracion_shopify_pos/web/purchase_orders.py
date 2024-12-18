@@ -161,6 +161,77 @@ class WebPurchaseOrderFile:
         except NoSuchElementException:
             return False
 
+    def update_cost_products(self) -> None:
+        """Actualiza el precio de costo para los productos."""
+        [key_store, _] = self.validate_location()
+        login_stocky(self.driver, key_store, shopify=True)
+
+        url = Configuration.get_site("stocky", "select_products")
+        self.driver.get(url.geturl())
+
+        import_anchor_locator = (By.CSS_SELECTOR, 'a[href="/multi_imports/which_type"]')
+        Wait(self.driver).until(EC.element_to_be_clickable(import_anchor_locator)).click()
+        cost_prices_anchor_locator = (By.CSS_SELECTOR, 'a[href="/cost_price_imports/new"]')
+        Wait(self.driver).until(EC.element_to_be_clickable(cost_prices_anchor_locator)).click()
+
+        input_file_locator = (By.ID, "cost_price_import_file_url")
+        input_file = Wait(self.driver).until(EC.visibility_of_element_located(input_file_locator))
+        path_file = str((self.data.getpath() / self.data.getname()).absolute())
+        input_file.send_keys(path_file)
+
+        timeout = Configuration.purchase_orders.timeout_add_products or 300 # 5 minutos
+        input_summit_until = EC.element_to_be_clickable((By.NAME, "commit"))
+        Wait(self.driver, timeout).until(input_summit_until).click()
+
+        if not self.data.purchase_items[0].bar_code is None:
+            identifier_product = "bar_code"
+            type_identifier_product = "Barcode"
+        elif not self.data.purchase_items[0].sku is None:
+            identifier_product = "sku"
+            type_identifier_product = "SKU"
+        elif not self.data.purchase_items[0].variant_shopify_id is None:
+            identifier_product = "variant_shopify_id"
+            type_identifier_product = "Shopify Variant ID"
+        else:
+            identifier_product = None
+            type_identifier_product = None
+
+        if identifier_product is None:
+            msg = "Se requiere nombre de la columna que identifica al producto [bar_code, sku]"
+            raise ValueError(msg)
+
+        context = self.data.getcontext()
+        identifier_product = context.purchase_items_fstr.format(identifier_product)
+
+        def dropdown(id_element: str):
+            until = EC.visibility_of_element_located((By.ID, id_element))
+            return Select(Wait(self.driver).until(until))
+
+        dropdown("indentifier_column").select_by_visible_text(identifier_product)
+        dropdown("indentifier_type_column").select_by_visible_text(type_identifier_product)
+        cost_column = context.purchase_items_fstr.format("cost_price")
+        dropdown("cost_column").select_by_visible_text(cost_column)
+        Wait(self.driver).until(EC.element_to_be_clickable((By.NAME, "commit"))).click()
+
+        skipped_locator = (By.XPATH, "/html/body/div[1]/div[3]/div/div/p[2]/span")
+        skipped_element = Wait(self.driver).until(EC.visibility_of_element_located(skipped_locator))
+        if int(skipped_element.text) == 0:
+            return None
+        textarea_locator = (By.XPATH, "/html/body/div[1]/div[3]/div/div/p[3]/span/textarea")
+        text_present = "Error log:"
+        textarea_until = EC.text_to_be_present_in_element_value(textarea_locator, text_present)
+        textarea_is_log_error = Wait(self.driver).until(textarea_until)
+        if textarea_is_log_error:
+            script = 'return document.querySelector("span textarea").value;'
+            text_present = str(self.driver.execute_script(script))
+        else:
+            text_present = ""
+
+        msg = "No se han encontrado algunos productos para la orden de compra."
+        if text_present:
+            msg = msg[:-1] + ": " + text_present
+        raise ValueError(msg)
+
     def new(self) -> None:
         """Via Web crear la orden de compra, valida la localización y el proveedor."""
         if self.validate_exists() or self.data.getstatus() == EnumMetaDataFileStatus.COMPLETED:
@@ -263,8 +334,10 @@ class WebPurchaseOrderFile:
                 element.clear()
             element.send_keys(str(send_keys))
 
-        if not self.data.amount_paid is None:
-            fill_element("total_field_{self.data.id}", str(round(self.data.amount_paid, 2)))
+        if self.data.amount_paid is None:
+            element_total = self.driver.find_element(By.ID, "total_cost_field")
+            self.data.amount_paid = float(element_total.text.replace(".", ""))
+        fill_element("total_field_{self.data.id}", str(round(self.data.amount_paid, 2)))
 
         if not self.data.paid is None:
             input_paid = self.driver.find_element(By.ID, "purchase_order_paid")
@@ -326,6 +399,7 @@ class WebPurchaseOrderFile:
         el formulario y marca como ordenado.
         """
         try:
+            self.update_cost_products()
             self.new()
             self.fill_form()
             self.add_products()

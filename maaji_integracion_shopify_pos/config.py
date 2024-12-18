@@ -186,6 +186,7 @@ class SiteActions(DataClass):
         purchase_orders_add_products: str = "/purchase_orders/{id}/purchase_item_imports/new"
         purchase_orders_update_shipping: str = "/purchase_orders/{id}/edit_shipping_tax"
         purchase_orders_mark_ordered: str = "/purchase_orders/{id}/confirm"
+        select_products: str = "/products"
 
     @dataclass
     class StockyAPI(DataClass):
