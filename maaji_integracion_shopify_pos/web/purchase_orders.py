@@ -181,7 +181,7 @@ class WebPurchaseOrderFile:
         # Validación de proveedor, por defecto es ART MODE
         supplier_default_name = Configuration.purchase_orders.default_supplier_name_like
         if not supplier_default_name:
-            supplier_default_name = "ART MODE S.A.S. BIC"
+            supplier_default_name = "ART MODE"
         if not self.data.supplier_name:
             self.data.supplier_name = supplier_default_name
 

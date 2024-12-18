@@ -48,7 +48,7 @@ def validate_bill_supplier(bill: Dynamics.DataApiServiceBills, /):
     if bill.proveedor != "900911000":
         msg = f"En la factura '{bill.numero_factura}' proveedor siempre debe ser 'ART MODE'"
         raise ValueError(msg)
-    return "ART MODE S.A.S."
+    return "ART MODE"
 
 def one_bill_line_to_purchase_order(bill: Dynamics.DataApiServiceBills,
                                     store_key: KeySitesShopifyStores, /):
