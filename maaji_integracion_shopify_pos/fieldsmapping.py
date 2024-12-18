@@ -39,11 +39,11 @@ class Stores(DataClass):
         Fields(id=3, names=["MAAJI MAYORCA OULET",
                             "MAAJI MAYORCA CENTRO COMERCIAL", "Tienda Mayorca"]),
         Fields(id=4, names=["MAAJI MONTERIA", "Tienda Montaria"]),
-        Fields(id=10, names=["POS Prueba", "Tiendas Maaji Pruebas"])
+        Fields(id=10, names=["POS Prueba", "Tiendas Maaji Pruebas", "CEGID"])
     )
     dynamics: tuple[Fields, ...] = (
         Fields(id=3, names=["MAAJI MAYORCA OULET", "MAAJI MAYORCA CENTRO COMERCIAL"]),
-        Fields(id=4, names=["MAAJI MONTERIA"]),
+        Fields(id=4, names=["MAAJI MONTERIA", "MAAJI MONTERÍA"]),
         Fields(id=6, names=["MAS S.A.S. BIC"]),
         Fields(id=10, names=["MAAJI EL TESORO PARQUE COMERCIAL"]),
         Fields(id=10, names=["MAAJI EL RETIRO SHOPPING CENTER"]),
@@ -55,8 +55,7 @@ class Stores(DataClass):
         Fields(id=10, names=["MAAJI BUCARAMANGA"]),
         Fields(id=10, names=["MAAJI UNICENTRO BOGOTA"]),
         Fields(id=10, names=["MAAJI SERREZUELA CARTAGENA"]),
-        Fields(id=10, names=["MAAJI BUENAVISTA BARRANQUILLA"]),
-        Fields(id=10, names=["CASA MAAJI"])
+        Fields(id=10, names=["MAAJI BUENAVISTA BARRANQUILLA"])
     )
 
     cegid_y2: tuple[Fields, ...] = (
@@ -66,7 +65,7 @@ class Stores(DataClass):
         Fields(id=5, names=["ART MODE S.A.S"], codes=["501"]),
         Fields(id=6, names=["MAS S.A.S"], codes=["600"]),
         Fields(id=7, names=["ART MODE DEVOLUCIONES ECOMMERCE"], codes=["601"]),
-        Fields(id=10, names=["MAAJI EL TESORO MEDELLÍN"], codes=[*cegidcodes("001"), "602"]),
+        Fields(id=10, names=["MAAJI EL TESORO MEDELLIN"], codes=[*cegidcodes("001"), "602"]),
         Fields(id=10, names=["MAAJI EL RETIRO BOGOTA"], codes=[*cegidcodes("002"), "603"]),
         Fields(id=10, names=["MAAJI SANTO DOMINGO CARTAGENA"], codes=[*cegidcodes("003"), "604"]),
         Fields(id=10, names=["MAAJI VIVA BARRANQUILLA"], codes=cegidcodes("005")),
