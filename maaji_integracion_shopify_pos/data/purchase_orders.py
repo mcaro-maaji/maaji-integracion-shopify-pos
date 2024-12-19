@@ -24,7 +24,7 @@ class DataPurchaseOrder(DataClass):
     Ver https://stocky.shopifyapps.com/api/docs/v2/purchase_orders/index.html
     """
 
-    id: Optional[str] = None
+    id: Optional[int] = None
     number: Optional[str] = None
     sequential_id: Optional[int] = None
     invoice_number: Optional[str] = None

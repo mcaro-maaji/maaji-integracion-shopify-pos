@@ -3,6 +3,7 @@
 from urllib.parse import urlparse
 from datetime import date, datetime
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
@@ -109,8 +110,8 @@ class WebPurchaseOrderFile:
             return False
         url = Configuration.get_site("stocky", "select_purchase_order", id=self.data.id)
         self.driver.get(url.geturl())
-        locator = (By.XPATH, "/html/body/div[1]/div[1]/div/div[1]/div[1]/div/h1")
-        until = EC.text_to_be_present_in_element(locator, " Purchase order #")
+        locator = (By.ID, f"PurchaseOrder{self.data.id}")
+        until = EC.presence_of_element_located(locator)
         try:
             Wait(self.driver).until(until)
             return True
@@ -318,10 +319,6 @@ class WebPurchaseOrderFile:
         dropdown("cost_column").select_by_visible_text(cost_column)
 
         Wait(self.driver).until(EC.element_to_be_clickable((By.NAME, "commit"))).click()
-        skipped_locator = (By.XPATH, "/html/body/div[1]/div[3]/div/div/p[2]/span")
-        skipped_element = Wait(self.driver).until(EC.visibility_of_element_located(skipped_locator))
-        if int(skipped_element.text) > 0:
-            raise ValueError("No se han encontrado algunos productos para la orden de compra.")
 
     def fill_form(self):
         """Rellena todo el formulario de datos en la orden de compra."""
@@ -333,11 +330,7 @@ class WebPurchaseOrderFile:
             if clear:
                 element.clear()
             element.send_keys(str(send_keys))
-
-        if self.data.amount_paid is None:
-            element_total = self.driver.find_element(By.ID, "total_cost_field")
-            self.data.amount_paid = float(element_total.text.replace(".", ""))
-        fill_element("total_field_{self.data.id}", str(round(self.data.amount_paid, 2)))
+            element.send_keys(Keys.ENTER)
 
         if not self.data.paid is None:
             input_paid = self.driver.find_element(By.ID, "purchase_order_paid")
@@ -380,6 +373,20 @@ class WebPurchaseOrderFile:
         if not cancel_on is None:
             fill_element("purchase_order_cancel_on", cancel_on)
 
+    def fill_form_amount_paid(self):
+        """Rellena el campo amount_paid en el formulario de datos en la orden de compra."""
+        if self.is_mark_ordered():
+            return None
+
+        if self.data.amount_paid is None:
+            element_total = self.driver.find_element(By.ID, "amount_owed")
+            amount_paid = element_total.text.replace(".", "").replace(",", ".")
+            self.data.amount_paid = float(amount_paid)
+        element = self.driver.find_element(By.ID, f"total_field_{self.data.id}")
+        element.clear()
+        element.send_keys(str(round(self.data.amount_paid, 2)))
+        element.send_keys(Keys.ENTER)
+
     def mark_ordered(self) -> None:
         """Marcar como ordenado la orden de compra."""
         if self.is_mark_ordered():
@@ -403,6 +410,7 @@ class WebPurchaseOrderFile:
             self.new()
             self.fill_form()
             self.add_products()
+            self.fill_form_amount_paid()
             self.mark_ordered()
         except WebDriverException as err:
             if not skip_err:

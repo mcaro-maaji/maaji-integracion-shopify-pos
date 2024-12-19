@@ -66,7 +66,8 @@ def one_bill_line_to_purchase_order(bill: Dynamics.DataApiServiceBills,
         currency=bill.moneda,
         shopify_store_key_name=store_key,
         shopify_receive_location_id=tienda.id,
-        supplier_name=proveedor
+        supplier_name=proveedor,
+        paid=True
     )
 
 def splitlines_bills(bills: list[Dynamics.DataApiServiceBills], /):
