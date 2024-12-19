@@ -39,7 +39,7 @@ class Stores(DataClass):
         Fields(id=3, names=["MAAJI MAYORCA OULET",
                             "MAAJI MAYORCA CENTRO COMERCIAL", "Tienda Mayorca"]),
         Fields(id=4, names=["MAAJI MONTERIA", "Tienda Montaria"]),
-        Fields(id=10, names=["POS Prueba", "Tiendas Maaji Pruebas", "CEGID"])
+        Fields(id=10, names=["POS Prueba", "Tiendas Maaji Pruebas"])
     )
     dynamics: tuple[Fields, ...] = (
         Fields(id=3, names=["MAAJI MAYORCA OULET", "MAAJI MAYORCA CENTRO COMERCIAL"]),
