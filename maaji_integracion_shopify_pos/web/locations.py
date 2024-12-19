@@ -2,8 +2,9 @@
 
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import JavascriptException, WebDriverException
-from .webdriver import BrowserDriver
+from .webdriver import BrowserDriver, WebDriverWaitTimeOuted as Wait
 from .login import login_shopify_admin, is_on_shopify_admin, login_stocky
 from ..config import Configuration, key_sites_shopify_stores, KeySitesShopifyStores
 from ..data import DataLocation, DataLocationsFile
@@ -24,12 +25,15 @@ class WebLocationsFile:
         url = Configuration.get_site("shopify_admin", "select_locations", shopify_store=store)
         self.driver.get(url.geturl())
 
+        locator = (By.CSS_SELECTOR, "body div[hidden=true]")
+        Wait(self.driver).until(EC.presence_of_element_located(locator))
+
         try:
             script_str = "return JSON.parse(document.body.firstChild.innerText);"
             json_data = self.driver.execute_script(script_str)
             locations = [DataLocation.from_dict(item) for item in json_data["locations"]]
         except JavascriptException as err:
-            msg = f"No se pudo obtener las localizaciones de la tienda: '{store_key}'"
+            msg = f"Error al analizar el JSON de las localizaciones de la tienda: '{store_key}'"
             raise WebDriverException(msg) from err
 
         setattr(self.data, store_key, locations)
