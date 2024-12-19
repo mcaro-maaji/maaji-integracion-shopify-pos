@@ -2,7 +2,6 @@
 
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import JavascriptException, WebDriverException
 from .webdriver import BrowserDriver, WebDriverWaitTimeOuted as Wait
 from .login import login_shopify_admin, is_on_shopify_admin, login_stocky
@@ -25,8 +24,9 @@ class WebLocationsFile:
         url = Configuration.get_site("shopify_admin", "select_locations", shopify_store=store)
         self.driver.get(url.geturl())
 
-        locator = (By.CSS_SELECTOR, "body div[hidden=true]")
-        Wait(self.driver).until(EC.presence_of_element_located(locator))
+        def until_loaded_page(driver: BrowserDriver) -> bool:
+            return driver.execute_script("return document.readyState;") == "complete"
+        Wait(self.driver).until(until_loaded_page)
 
         try:
             script = "return JSON.parse(document.body.firstChild.innerText);"
