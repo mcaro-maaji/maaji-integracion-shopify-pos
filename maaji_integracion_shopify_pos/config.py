@@ -59,6 +59,13 @@ key_sites_shopify_stores = (
 
 KeySitesDynamics = Literal["prod", "uat"]
 
+default_webdriver_arguments = [
+    "--headless",
+    "--log-level-3",
+    "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
+        Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+]
+
 @dataclass
 class ConfigWebDriver(DataClass):
     """
@@ -91,7 +98,7 @@ class ConfigWebDriver(DataClass):
                         `--window-size` es usado para establecer el tamaño de la ventana.
                         `--headless` ejecutar el navegador pero sin abrir una ventana del navegador.
         """
-        add_arguments: list[str] = field(default_factory=lambda: ["--headless", "--log-level-3"])
+        add_arguments: list[str] = field(default_factory=lambda: default_webdriver_arguments)
 
     wait_timeout: float = 30
     profile: str = "profile_default"
