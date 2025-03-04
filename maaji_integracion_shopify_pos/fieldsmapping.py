@@ -38,12 +38,12 @@ class Stores(DataClass):
         Fields(id=2, names=["Zona Franca Rionegro", "ZN", "Vereda Chachafruto Zona Franca"]),
         Fields(id=3, names=["MAAJI MAYORCA OULET",
                             "MAAJI MAYORCA CENTRO COMERCIAL", "Tienda Mayorca"]),
-        Fields(id=4, names=["MAAJI MONTERIA", "Tienda Montaria"]),
+        Fields(id=4, names=["MAAJI MONTERIA", "MAAJI MONTERÍA", "MAAJI MONTER\u00cdA", "Tienda Montaria"]),
         Fields(id=10, names=["POS Prueba", "Tiendas Maaji Pruebas"])
     )
     dynamics: tuple[Fields, ...] = (
         Fields(id=3, names=["MAAJI MAYORCA OULET", "MAAJI MAYORCA CENTRO COMERCIAL"]),
-        Fields(id=4, names=["MAAJI MONTERIA", "MAAJI MONTERÍA"]),
+        Fields(id=4, names=["MAAJI MONTERIA", "MAAJI MONTERÍA", "MAAJI MONTER\u00cdA"]),
         Fields(id=6, names=["MAS S.A.S. BIC"]),
         Fields(id=10, names=["MAAJI EL TESORO PARQUE COMERCIAL"]),
         Fields(id=10, names=["MAAJI EL RETIRO SHOPPING CENTER"]),

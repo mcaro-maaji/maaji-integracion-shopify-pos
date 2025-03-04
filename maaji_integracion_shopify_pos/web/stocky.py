@@ -50,9 +50,9 @@ class WebStockyFile:
         for store_key in key_sites_shopify_stores:
             try:
                 login_stocky(self.driver, store_key)
+                self.get_api_key(store_key)
             except WebDriverException:
                 continue
-            self.get_api_key(store_key)
 
         self.driver.get(current_url)
         self.data.save_file()

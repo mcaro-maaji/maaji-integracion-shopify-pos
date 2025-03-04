@@ -70,7 +70,7 @@ def create_from_service(payload: DataApiPayload,
     api_stocky_suppliers = get_apistocky_suppliers()
 
     for data_purchase_order in data_purchase_orders:
-        date_str = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+        date_str = data_purchase_order.invoice_date.strftime("%Y-%m-%d %H-%M-%S")
         name = f'Compra {data_purchase_order.invoice_number} {date_str}.csv'
         data_purchase_order.setname(name)
         data_purchase_order.setpath(PURCHASE_DIR / "Entrada", FileStatus.ON_HOLD)
